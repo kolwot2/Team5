@@ -1,5 +1,12 @@
+#pragma once
 #include <unordered_map>
 #include <vector>
+
+struct Point
+{
+	double x;
+	double y;
+};
 
 struct Vertex
 {
@@ -8,11 +15,6 @@ struct Vertex
 	Point pos;
 };
 
-struct Point
-{
-	double x;
-	double y;
-};
 
 struct Edge
 {

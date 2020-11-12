@@ -24,10 +24,16 @@
     <ClCompile Include="headers\Graph.cpp">
       <Filter>headers</Filter>
     </ClCompile>
+    <ClCompile Include="headers\ParseGraph.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="headers\Graph.h">
       <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\ParseGraph.h">
+      <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
