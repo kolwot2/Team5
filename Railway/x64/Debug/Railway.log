@@ -1,5 +1,0 @@
-﻿  Graph.cpp
-  Vertex.cpp
-  Создание кода...
-C:\WGForge\Team5\Railway\headers\Graph.cpp(16): error C4716: Graph::GetRibs: должна возвращать значение
-C:\WGForge\Team5\Railway\headers\Graph.cpp(21): error C4716: Graph::GetVertex: должна возвращать значение
