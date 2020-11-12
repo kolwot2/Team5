@@ -1,0 +1,2 @@
+C:\WGForge\Team5\Railway\x64\Debug\Railway.exe
+C:\WGForge\Team5\Railway\x64\Debug\Railway.pdb
