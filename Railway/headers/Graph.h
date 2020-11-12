@@ -1,17 +1,17 @@
 #include <unordered_map>
 #include <vector>
 
+struct Point
+{
+	double x;
+	double y;
+};
+
 struct Vertex
 {
 	int index;
 	int post_index;
 	Point pos;
-};
-
-struct Point
-{
-	double x;
-	double y;
 };
 
 struct Edge
