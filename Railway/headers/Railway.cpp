@@ -3,8 +3,11 @@
 #include "SFML/Graphics.hpp"
 
 Railway::Railway(int winWidth, int winHeight) 
-	: windowWidth{std::max(winWidth, 0)}, windowHeight{std::max(winHeight, 0)} {
-	sf::RenderWindow window(sf::VideoMode(800, 800), "Railway");
+	: windowWidth{std::max(winWidth, 0)}, windowHeight{std::max(winHeight, 0)} {}
+
+void Railway::start() {
+	sf::RenderWindow window(sf::VideoMode(windowWidth, windowHeight), "Railway");
+
 	while (window.isOpen())
 	{
 		sf::Event event;
