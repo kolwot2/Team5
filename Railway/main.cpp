@@ -1,9 +1,8 @@
-#include <fstream>
-#include "headers/ParseGraph.h"
 #include "headers/Graph.h"
+#include "headers/Railway.h"
 
 int main()
 {
-	std::ifstream fin("tests\\small_graph.json");
-	auto graph = ParseGraph(fin);
+	Railway game(800, 800);
+	game.start();
 }

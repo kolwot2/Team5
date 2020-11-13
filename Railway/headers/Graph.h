@@ -1,18 +1,22 @@
 #pragma once
+#include "SFML/Graphics.hpp"
 #include <unordered_map>
 #include <vector>
 
 struct Point
 {
-	double x;
-	double y;
+	float x;
+	float y;
 };
 
 struct Vertex
 {
+	Vertex() = default;
+	Vertex(int, int, Point);
 	int index;
 	int post_index;
 	Point pos;
+	sf::CircleShape shape;
 };
 
 
@@ -27,11 +31,12 @@ using Edg = std::unordered_map <int, std::unordered_map <int, Edge>>;
 class Graph
 {
 	Edg edges;
-	std::vector <Vertex> vertexes;
+	std::unordered_map <int, Vertex> vertexes;
 
 public:
 	void AddEdge(const Edge&, int, int);
 	void AddVertex(const Vertex&);
-	const Edg& GetEdges();
-	std::vector <Vertex>& GetVertex();
+	const Edg& GetEdges() const;
+	std::unordered_map <int, Vertex>& GetVertexes();
+	const std::unordered_map <int, Vertex>& GetVertexes() const;
 };
