@@ -1,8 +1,8 @@
 #include "Drawer.h"
 
 void Drawer::drawGraph(sf::RenderWindow &window, const Graph &graph) {
-	const auto edges = graph.GetEdges();
-	const auto vertexes = graph.GetVertexes();
+	const auto& edges = graph.GetEdges();
+	const auto& vertexes = graph.GetVertexes();
 	for (const auto &vertex : vertexes) {
 		window.draw(vertex.second.shape);
 	}

@@ -9,13 +9,10 @@ Railway::Railway(int winWidth, int winHeight)
 	: windowWidth{std::max(winWidth, 0)}, windowHeight{std::max(winHeight, 0)} {}
 	
 void Railway::start() {
-	std::ifstream fin("tests\\small_graph.json");
+	std::ifstream fin("tests\\big_graph.json");
 		auto graph = ParseGraph(fin);
 	fin.close();
-	for (auto &vertex : graph.GetVertexes()) {
-		vertex.second.pos.x = static_cast<float>(rand() % 200 + 50);
-		vertex.second.pos.y = static_cast<float>(rand() % 200 + 50);
-	}
+	PlaceGraph(graph, 500.f, 50.f, 10.f, 500.f);
 	sf::RenderWindow window(sf::VideoMode(windowWidth, windowHeight), "Railway");
 	Drawer drawer;
 	while (window.isOpen())
