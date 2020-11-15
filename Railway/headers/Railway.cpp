@@ -4,20 +4,23 @@
 #include <fstream>
 #include "ParseGraph.h"
 #include "Drawer.h"
+#include "Camera.h"
 
 Railway::Railway(int winWidth, int winHeight) 
 	: windowWidth{std::max(winWidth, 0)}, windowHeight{std::max(winHeight, 0)} {}
 	
 void Railway::start() {
 	std::ifstream fin("tests\\small_graph.json");
-		auto graph = ParseGraph(fin);
+	auto graph = ParseGraph(fin);
 	fin.close();
 	for (auto &vertex : graph.GetVertexes()) {
-		vertex.second.pos.x = static_cast<float>(rand() % 200 + 50);
-		vertex.second.pos.y = static_cast<float>(rand() % 200 + 50);
+		vertex.second.pos.x = static_cast<float>(rand() % 2000 - 1000);
+		vertex.second.pos.y = static_cast<float>(rand() % 2000 - 1000);
 	}
 	sf::RenderWindow window(sf::VideoMode(windowWidth, windowHeight), "Railway");
+	sf::View camera(sf::FloatRect(0.f, 0.f, static_cast<float>(windowWidth), static_cast<float>(windowHeight)));
 	Drawer drawer;
+	FocusOnGraph(camera, graph);
 	while (window.isOpen())
 	{
 		sf::Event event;
@@ -28,8 +31,12 @@ void Railway::start() {
 		}
 
 		window.clear();
+		
+		window.setView(camera);
 		drawer.visualUpdate(graph);
 		drawer.drawGraph(window, graph);
+		
+		window.setView(window.getDefaultView());
 		window.display();
 	}
 }
