@@ -30,13 +30,20 @@ Vertex::Vertex(int ind, int post_ind, Point pt)
 
 void PlaceGraph(Graph& graph, const float& q_force_coeff, const float& k_force_coeff,
 	const float& end_epsilon, const float& edge_len) {
-	srand(time(NULL));
 	auto& vertexes = graph.GetVertexes();
 	const auto& edges = graph.GetEdges();
+	int cur_x = 0;
+	int cur_y = 0;
+	int sq_side1 = std::sqrt(vertexes.size());
+	int sq_side2 = vertexes.size() / sq_side1;
 	for (auto& vertex_pair : vertexes) {
 		Point& pt = vertex_pair.second.pos;
-		pt.x = static_cast<float>(rand() % 400 + 100);
-		pt.y = static_cast<float>(rand() % 400 + 100);
+		pt.x = static_cast<float>(cur_x++);
+		pt.y = static_cast<float>(cur_y);
+		if (cur_x == sq_side1) {
+			cur_y++;
+			cur_x = 0;
+		}
 	}
 	float cur_max_diff = 0.f;
 	float next_max_diff = 0.f;

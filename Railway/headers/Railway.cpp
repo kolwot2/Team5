@@ -10,10 +10,10 @@ Railway::Railway(int winWidth, int winHeight)
 	: windowWidth{std::max(winWidth, 0)}, windowHeight{std::max(winHeight, 0)} {}
 	
 void Railway::start() {
-	std::ifstream fin("tests\\big_graph.json");
-		auto graph = ParseGraph(fin);
+	std::ifstream fin("tests\\small_graph.json");
+	auto graph = ParseGraph(fin);
 	fin.close();
-	PlaceGraph(graph, 500.f, 50.f, 10.f, 500.f);
+	PlaceGraph(graph, 500.f, 50.f, 1.f, 500.f);
 
 	sf::RenderWindow window(sf::VideoMode(windowWidth, windowHeight), "Railway");
 	sf::View camera(sf::FloatRect(0.f, 0.f, static_cast<float>(windowWidth), static_cast<float>(windowHeight)));
