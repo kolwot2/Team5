@@ -17,6 +17,17 @@ void Drawer::drawGraph(sf::RenderWindow &window, const Graph &graph) {
 	}
 }
 
+void Drawer::drawLabels(sf::RenderWindow &window, const Graph &graph, const sf::Font &label_font) {
+	const auto& vertexes = graph.GetVertexes();
+	for (const auto& vertex_pair : vertexes) {
+		const Vertex& vertex = vertex_pair.second;
+		sf::Text label_text(std::to_string(vertex.index), label_font, 50u);
+		label_text.setPosition(sf::Vector2f(vertex.pos.x, vertex.pos.y - vertex.shape.getRadius() * 5));
+		label_text.setFillColor(sf::Color::White);
+		window.draw(label_text);
+	}
+}
+
 void Drawer::visualUpdate(Graph &graph) {
 	auto& vertexes = graph.GetVertexes();
 	for (auto& vertex_pair : vertexes) {

@@ -10,14 +10,21 @@ Railway::Railway(int winWidth, int winHeight)
 	: windowWidth{std::max(winWidth, 0)}, windowHeight{std::max(winHeight, 0)} {}
 	
 void Railway::start() {
-	std::ifstream fin("tests\\small_graph.json");
+	std::ifstream fin("tests\\big_graph.json");
 	auto graph = ParseGraph(fin);
 	fin.close();
+	
 	PlaceGraph(graph, 500.f, 50.f, 1.f, 500.f);
 
 	sf::RenderWindow window(sf::VideoMode(windowWidth, windowHeight), "Railway");
+	
 	sf::View camera(sf::FloatRect(0.f, 0.f, static_cast<float>(windowWidth), static_cast<float>(windowHeight)));
+	
 	Drawer drawer;
+	
+	sf::Font label_font;
+	label_font.loadFromFile("fonts\\jai.ttf");
+
 	FocusOnGraph(camera, graph);
 	while (window.isOpen())
 	{
@@ -33,6 +40,7 @@ void Railway::start() {
 		window.setView(camera);
 		drawer.visualUpdate(graph);
 		drawer.drawGraph(window, graph);
+		drawer.drawLabels(window, graph, label_font);
 		
 		window.setView(window.getDefaultView());
 		window.display();
