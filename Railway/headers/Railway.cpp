@@ -10,7 +10,7 @@ Railway::Railway(int winWidth, int winHeight)
 	: windowWidth{std::max(winWidth, 0)}, windowHeight{std::max(winHeight, 0)} {}
 	
 void Railway::start() {
-	std::ifstream fin("tests\\cylinder.json");
+	std::ifstream fin("tests\\star.json");
 	auto graph = ParseGraph(fin);
 	fin.close();
 	
