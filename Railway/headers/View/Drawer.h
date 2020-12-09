@@ -1,6 +1,6 @@
 #pragma once
 #include "SFML/Graphics.hpp"
-#include "Graph.h"
+#include "../Game/Graph.h"
 
 class Drawer {
 public:

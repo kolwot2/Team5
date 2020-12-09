@@ -25,6 +25,11 @@ const std::unordered_map <int, Vertex>& Graph::GetVertexes() const
 	return vertexes;
 }
 
+void Graph::SetVertexCoordinates(int idx, Point coordinates)
+{
+	vertexes[idx].pos = coordinates;
+}
+
 Vertex::Vertex(int ind, int post_ind, Point pt)
 	: index{ ind }, post_index{ post_ind }, pos{ pt }, shape{ sf::CircleShape(10) } {}
 

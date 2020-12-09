@@ -2,19 +2,23 @@
 #include <algorithm>
 #include "SFML/Graphics.hpp"
 #include <fstream>
+#include <iostream>
 #include "../JsonUtils/ParseUtils.h"
 #include "Drawer.h"
 #include "Camera.h"
+#include "../ServerConnection/ServerConnection.h"
+#include "../ServerConnection/Login.h"
+#include "../ServerConnection/Messages.h"
+#include "../JsonUtils/ParseUtils.h"
 
 Railway::Railway(int winWidth, int winHeight) 
 	: windowWidth{std::max(winWidth, 0)}, windowHeight{std::max(winHeight, 0)} {}
 	
 void Railway::start() {
-	std::ifstream fin("tests\\star.json");
-	auto graph = ParseGraph(fin);
-	fin.close();
-	
-	PlaceGraph(graph, 500.f, 50.f, 1.f, 500.f);
+	Game game;
+	const Graph& graph = game.GetGraph();
+
+	//PlaceGraph(graph, 500.f, 50.f, 0.1f, 500.f);
 
 	sf::RenderWindow window(sf::VideoMode(windowWidth, windowHeight), "Railway");
 	
@@ -38,7 +42,7 @@ void Railway::start() {
 		window.clear();
 		
 		window.setView(camera);
-		drawer.visualUpdate(graph);
+		//drawer.visualUpdate(graph);
 		drawer.drawGraph(window, graph);
 		drawer.drawLabels(window, graph, label_font);
 		

@@ -39,6 +39,7 @@ public:
 	const Edg& GetEdges() const;
 	std::unordered_map <int, Vertex>& GetVertexes();
 	const std::unordered_map <int, Vertex>& GetVertexes() const;
+	void SetVertexCoordinates(int, Point);
 };
 
 void PlaceGraph(Graph &,const float&, const float&, const float&, const float&);

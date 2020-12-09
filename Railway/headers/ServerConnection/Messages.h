@@ -1,7 +1,9 @@
 #pragma once
 #include <string>
+#include "../JsonUtils/WriteUtils.h"
+#include "Login.h"
 
-enum Action {
+enum class Action {
 	LOGIN = 1,
 	LOGOUT = 2,
 	MOVE = 3,
@@ -12,7 +14,7 @@ enum Action {
 	MAP = 10
 };
 
-enum Result {
+enum class Result {
 	OKEY = 0,
 	BAD_COMMAND = 1,
 	RESOURCE_NOT_FOUND = 2,
@@ -25,7 +27,7 @@ enum Result {
 struct ActionMessage {
 	Action actionCode;
 	std::string data;
-	ActionMessage() : actionCode(Action::LOGIN), data("") {}
+	ActionMessage(const Login& login) : actionCode(Action::LOGIN), data(WriteLogin(login)) {}
 	ActionMessage(const Action& actionCode, const std::string& data) : actionCode(actionCode), data(data) {}
 };
 

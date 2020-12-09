@@ -13,7 +13,7 @@ ServerConnection::~ServerConnection() {
 }
 
 void ServerConnection::send(const ActionMessage &actionMessage) {
-	int type = actionMessage.actionCode;
+	int type = static_cast<int>(actionMessage.actionCode);
 	socket.send(reinterpret_cast<char*>(&type), sizeof(type));
 	int length = actionMessage.data.size();
 	socket.send(reinterpret_cast<char*>(&length), sizeof(length));
