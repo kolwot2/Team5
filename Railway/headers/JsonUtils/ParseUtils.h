@@ -4,6 +4,6 @@
 #include "rapidjson/document.h"
 #include "rapidjson/istreamwrapper.h"
 #include <vector>
-#include "Graph.h"
+#include "../View/Graph.h"
 
 Graph ParseGraph(std::istream& input);

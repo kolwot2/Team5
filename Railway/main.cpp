@@ -1,5 +1,4 @@
-#include "headers/Graph.h"
-#include "headers/Railway.h"
+#include "headers/View/Railway.h"
 
 int main()
 {

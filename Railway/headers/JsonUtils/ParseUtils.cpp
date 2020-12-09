@@ -1,5 +1,4 @@
-#include "ParseGraph.h"
-
+#include "ParseUtils.h"
 
 Graph ParseGraph(std::istream& input) {
 	using namespace rapidjson;

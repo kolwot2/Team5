@@ -25,7 +25,7 @@ ResposeMessage ServerConnection::recieve() {
 	std::string str_data = "";
 	size_t recieved;
 	socket.receive(&type, sizeof(type), recieved);
-	socket.receive(&length, (size_t)4, recieved);
+	socket.receive(&length, sizeof(length), recieved);
 	size_t sum_recieved = 0;
 	char *data = new char[recieveMaxSize + 1];
 	while (sum_recieved < length) {
