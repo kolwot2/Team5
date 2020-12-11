@@ -21,8 +21,10 @@ void Railway::start() {
 	//PlaceGraph(graph, 500.f, 50.f, 0.1f, 500.f);
 
 	sf::RenderWindow window(sf::VideoMode(windowWidth, windowHeight), "Railway");
+	window.setFramerateLimit(60);
 	
 	sf::View camera(sf::FloatRect(0.f, 0.f, static_cast<float>(windowWidth), static_cast<float>(windowHeight)));
+	CameraConfig camera_config;
 	
 	Drawer drawer;
 	
@@ -37,6 +39,21 @@ void Railway::start() {
 		{
 			if (event.type == sf::Event::Closed)
 				window.close();
+			if (event.type == sf::Event::MouseWheelMoved) {
+				camera.zoom(1 - event.mouseWheel.delta / 30.0);
+			}
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
+				camera.move(-camera_config.camera_speed, 0.f);
+			}
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
+				camera.move(camera_config.camera_speed, 0.f);
+			}
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
+				camera.move(0.f, -camera_config.camera_speed);
+			}
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
+				camera.move(0.f, camera_config.camera_speed);
+			}
 		}
 
 		window.clear();
