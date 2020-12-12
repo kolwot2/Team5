@@ -16,7 +16,6 @@ struct Vertex
 	int index;
 	int post_index;
 	Point pos;
-	sf::CircleShape shape;
 };
 
 

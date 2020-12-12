@@ -33,3 +33,8 @@ const Graph& Game::GetGraph()
 {
 	return graph;
 }
+
+const std::unordered_map<int, std::unique_ptr<Post>>& Game::getPosts()
+{
+	return idx_to_post;
+}

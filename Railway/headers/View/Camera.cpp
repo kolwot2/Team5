@@ -16,6 +16,6 @@ void FocusOnGraph(sf::View& camera, const Graph& graph) {
 	double center_x = (min_x + max_x) / 2.0;
 	double center_y = (min_y + max_y) / 2.0;
 	camera.setCenter(center_x, center_y);
-	camera.zoom(std::max(std::abs(max_y - min_y + 10 * first_vertex.shape.getRadius()) / camera.getSize().y, 
-		std::abs(max_x - min_x + 5 * first_vertex.shape.getRadius()) / camera.getSize().x));
+	camera.zoom(std::max(std::abs(max_y - min_y + 10.0f) / camera.getSize().y, 
+		std::abs(max_x - min_x + 10.0f) / camera.getSize().x));
 }

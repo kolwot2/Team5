@@ -31,7 +31,7 @@ void Graph::SetVertexCoordinates(int idx, Point coordinates)
 }
 
 Vertex::Vertex(int ind, int post_ind, Point pt)
-	: index{ ind }, post_index{ post_ind }, pos{ pt }, shape{ sf::CircleShape(10) } {}
+	: index{ ind }, post_index{ post_ind }, pos{ pt } {}
 
 void PlaceGraph(Graph& graph, const float& q_force_coeff, const float& k_force_coeff,
 	const float& end_epsilon, const float& edge_len) {

@@ -27,6 +27,7 @@ void Railway::start() {
 	CameraConfig camera_config;
 	
 	Drawer drawer;
+	drawer.InitRenderObjects(graph, game.getPosts());
 	
 	sf::Font label_font;
 	label_font.loadFromFile("fonts\\jai.ttf");
@@ -41,6 +42,7 @@ void Railway::start() {
 				window.close();
 			if (event.type == sf::Event::MouseWheelMoved) {
 				camera.zoom(1 - event.mouseWheel.delta / 30.0);
+				drawer.ScaleObjects(1 - event.mouseWheel.delta / 30.0);
 			}
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
 				camera.move(-camera_config.camera_speed, 0.f);
@@ -59,9 +61,8 @@ void Railway::start() {
 		window.clear();
 		
 		window.setView(camera);
-		//drawer.visualUpdate(graph);
-		drawer.drawGraph(window, graph);
-		drawer.drawLabels(window, graph, label_font);
+		//drawer.drawLabels(window, graph, label_font);
+		drawer.DrawObjects(window);
 		
 		window.setView(window.getDefaultView());
 		window.display();
