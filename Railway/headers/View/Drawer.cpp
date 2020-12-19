@@ -40,14 +40,14 @@ void Drawer::InitRenderObjects(const Graph &graph, const std::unordered_map<int,
 			sprite.setTexture(*textures[post.type]);
 			sprite.setPosition(sf::Vector2f(vertex.pos.x - sprite.getTexture()->getSize().x / 2.0f, 
 								vertex.pos.y - sprite.getTexture()->getSize().y / 2.0f));
-			posts.push_back(sprite);
+			posts.push_back({sprite, vertex.post_index});
 		}
 		else {
 			sf::Sprite sprite;
 			sprite.setTexture(*textures[PostType::DEFAULT]);
 			sprite.setPosition(sf::Vector2f(vertex.pos.x - sprite.getTexture()->getSize().x / 2.0f,
 				vertex.pos.y - sprite.getTexture()->getSize().y / 2.0f));
-			posts.push_back(sprite);
+			posts.push_back({sprite, -1});
 		}
 	}
 	
@@ -68,19 +68,19 @@ void Drawer::DrawObjects(sf::RenderWindow &window) {
 		window.draw(&edge[0], edge.size(), sf::Lines);
 	}
 	for (const auto &post : posts) {
-		window.draw(post);
+		window.draw(post.first);
 	}
 }
 
 void Drawer::ScaleObjects(const float &scale_coeff) {
 	for (auto &post : posts) {
-		sf::Vector2f cur_position = post.getPosition();
-		sf::FloatRect prev_post_size = post.getGlobalBounds();
+		sf::Vector2f cur_position = post.first.getPosition();
+		sf::FloatRect prev_post_size = post.first.getGlobalBounds();
 		sf::Vector2f post_center = sf::Vector2f(cur_position.x + prev_post_size.width / 2.0f,
 											cur_position.y + prev_post_size.height / 2.0f);
-		post.scale(sf::Vector2f(scale_coeff, scale_coeff));
-		sf::FloatRect post_size = post.getGlobalBounds();
-		post.setPosition(sf::Vector2f(post_center.x - post_size.width / 2.0f,
+		post.first.scale(sf::Vector2f(scale_coeff, scale_coeff));
+		sf::FloatRect post_size = post.first.getGlobalBounds();
+		post.first.setPosition(sf::Vector2f(post_center.x - post_size.width / 2.0f,
 								post_center.y - post_size.height / 2.0f));
 	}
 }

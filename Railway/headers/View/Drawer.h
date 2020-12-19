@@ -5,7 +5,7 @@
 
 class Drawer {
 	std::map <PostType, std::unique_ptr<sf::Texture>> textures;
-	std::vector <sf::Sprite> posts;
+	std::vector < std::pair <sf::Sprite, int>> posts;
 	std::vector <std::vector <sf::Vertex>> edges;
 public:
 	Drawer();
