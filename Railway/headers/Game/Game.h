@@ -13,6 +13,7 @@ public:
 	~Game();
 	const Graph& GetGraph();
 	const std::unordered_map<int, std::shared_ptr<Post>> &getPosts();
+	std::string GetPostInfo(const int &post_index);
 private:
 	Graph graph;
 	std::unordered_map<int, std::shared_ptr<Post>> idx_to_post;

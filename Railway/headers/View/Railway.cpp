@@ -2,13 +2,13 @@
 #include <algorithm>
 #include "SFML/Graphics.hpp"
 #include <fstream>
-#include <iostream>
 #include "Drawer.h"
 #include "Camera.h"
 #include "../ServerConnection/ServerConnection.h"
 #include "../ServerConnection/Login.h"
 #include "../ServerConnection/Messages.h"
 #include "../Game/Game.h"
+#include "MouseTracker.h"
 
 Railway::Railway(int winWidth, int winHeight) 
 	: windowWidth{std::max(winWidth, 0)}, windowHeight{std::max(winHeight, 0)} {}
@@ -32,6 +32,9 @@ void Railway::start() {
 	label_font.loadFromFile("fonts\\jai.ttf");
 
 	FocusOnGraph(camera, graph);
+
+	MouseTracker mouse_tracker;
+
 	while (window.isOpen())
 	{
 		sf::Event event;
@@ -60,10 +63,11 @@ void Railway::start() {
 		window.clear();
 		
 		window.setView(camera);
-		//drawer.drawLabels(window, graph, label_font);
 		drawer.DrawObjects(window);
-		
+		mouse_tracker.GetMousePos(window);
+
 		window.setView(window.getDefaultView());
+		drawer.PrintPostInfo(window, game.GetPostInfo(mouse_tracker.CheckMouseOnPost(drawer.GetPostSprites())), label_font);
 		window.display();
 	}
 }
