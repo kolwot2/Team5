@@ -6,7 +6,8 @@
 enum class PostType {
 	TOWN = 1,
 	MARKET = 2,
-	STORAGE = 3
+	STORAGE = 3,
+	DEFAULT = 4
 };
 
 struct Post {
