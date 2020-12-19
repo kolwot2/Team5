@@ -3,13 +3,12 @@
 #include "SFML/Graphics.hpp"
 #include <fstream>
 #include <iostream>
-#include "../JsonUtils/ParseUtils.h"
 #include "Drawer.h"
 #include "Camera.h"
 #include "../ServerConnection/ServerConnection.h"
 #include "../ServerConnection/Login.h"
 #include "../ServerConnection/Messages.h"
-#include "../JsonUtils/ParseUtils.h"
+#include "../Game/Game.h"
 
 Railway::Railway(int winWidth, int winHeight) 
 	: windowWidth{std::max(winWidth, 0)}, windowHeight{std::max(winHeight, 0)} {}

@@ -1,24 +1,24 @@
 #include "Game.h"
-#include "../JsonUtils/ParseUtils.h"
-#include "../JsonUtils/WriteUtils.h"
+#include "../JsonUtils/JsonParser.h"
+#include "../JsonUtils/JsonWriter.h"
 
 Game::Game()
 {
 	connection.send(ActionMessage{ Login{} });
 	auto login_response = connection.recieve();
-	player = ParsePlayer(login_response.data);
+	player = JsonParser::ParsePlayer(login_response.data);
 
-	connection.send(ActionMessage{ Action::MAP, WriteMapLayer(0) });
+	connection.send(ActionMessage{ Action::MAP, JsonWriter::WriteMapLayer(0) });
 	auto map_layer0_response = connection.recieve();
-	graph = ParseGraph(map_layer0_response.data);
+	graph = JsonParser::ParseGraph(map_layer0_response.data);
 
-	connection.send(ActionMessage{ Action::MAP, WriteMapLayer(1) });
+	connection.send(ActionMessage{ Action::MAP, JsonWriter::WriteMapLayer(1) });
 	auto map_layer1_response = connection.recieve();
-	idx_to_post = ParsePosts(map_layer1_response.data);
+	idx_to_post = JsonParser::ParsePosts(map_layer1_response.data);
 
-	connection.send(ActionMessage{ Action::MAP, WriteMapLayer(10) });
+	connection.send(ActionMessage{ Action::MAP, JsonWriter::WriteMapLayer(10) });
 	auto map_layer10_response = connection.recieve();
-	auto coords = ParseCoordinates(map_layer10_response.data);
+	auto coords = JsonParser::ParseCoordinates(map_layer10_response.data);
 	for (const auto& i : coords) {
 		graph.SetVertexCoordinates(i.first, i.second);
 	}

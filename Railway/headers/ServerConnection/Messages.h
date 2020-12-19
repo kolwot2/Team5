@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-#include "../JsonUtils/WriteUtils.h"
+#include "../JsonUtils/JsonWriter.h"
 #include "Login.h"
 
 enum class Action {
@@ -27,7 +27,7 @@ enum class Result {
 struct ActionMessage {
 	Action actionCode;
 	std::string data;
-	ActionMessage(const Login& login) : actionCode(Action::LOGIN), data(WriteLogin(login)) {}
+	ActionMessage(const Login& login) : actionCode(Action::LOGIN), data(JsonWriter::WriteLogin(login)) {}
 	ActionMessage(const Action& actionCode, const std::string& data) : actionCode(actionCode), data(data) {}
 };
 

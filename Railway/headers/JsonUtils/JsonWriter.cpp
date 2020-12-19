@@ -1,9 +1,9 @@
-#include "WriteUtils.h"
+#include "JsonWriter.h"
 
 using namespace rapidjson;
 using namespace std;
 
-string WriteLogin(const Login& login) {
+string JsonWriter::WriteLogin(const Login& login) {
 	Document document;
 	document.SetObject();
 	auto& alloc = document.GetAllocator();
@@ -29,12 +29,12 @@ string WriteLogin(const Login& login) {
 	return move(buffer.GetString());
 }
 
-string WriteMapLayer(int layer)
+string JsonWriter::WriteMapLayer(int layer)
 {
 	return "{\"layer\":" + to_string(layer) + "}";
 }
 
-string WriteMove(int line_idx, int speed, int train_idx)
+string JsonWriter::WriteMove(int line_idx, int speed, int train_idx)
 {
 	Document document;
 	document.SetObject();
@@ -51,7 +51,7 @@ string WriteMove(int line_idx, int speed, int train_idx)
 	return move(buffer.GetString());
 }
 
-string WriteUpgrade(const vector<int>& posts, const vector<int>& trains)
+string JsonWriter::WriteUpgrade(const vector<int>& posts, const vector<int>& trains)
 {
 	Document document;
 	document.SetObject();
