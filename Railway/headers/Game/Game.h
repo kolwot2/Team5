@@ -8,15 +8,18 @@
 
 class Game
 {
+	using PostMap = std::unordered_map<int, std::shared_ptr<Post>>;
 public:
-	Game();
-	~Game();
-	const Graph& GetGraph();
-	const std::unordered_map<int, std::shared_ptr<Post>> &getPosts();
+	Game() = default;
+	Graph& GetGraph();
+	PostMap& GetPosts();
+	Player& GetPlayer();
+	const Graph& GetGraph() const;
+	const PostMap& GetPosts() const;
+	const Player& GetPlayer() const;
 private:
 	Graph graph;
-	std::unordered_map<int, std::shared_ptr<Post>> idx_to_post;
+	PostMap idx_to_post;
 	Player player;
-	ServerConnection connection;
 };
 

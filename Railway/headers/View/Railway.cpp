@@ -9,12 +9,14 @@
 #include "../ServerConnection/Login.h"
 #include "../ServerConnection/Messages.h"
 #include "../Game/Game.h"
+#include "../Controller/Controller.h"
 
 Railway::Railway(int winWidth, int winHeight) 
 	: windowWidth{std::max(winWidth, 0)}, windowHeight{std::max(winHeight, 0)} {}
 	
 void Railway::start() {
-	Game game;
+	Controller controller;
+	const auto& game = controller.GetGame();
 	const Graph& graph = game.GetGraph();
 
 	//PlaceGraph(graph, 500.f, 50.f, 0.1f, 500.f);
@@ -26,7 +28,7 @@ void Railway::start() {
 	CameraConfig camera_config;
 	
 	Drawer drawer;
-	drawer.InitRenderObjects(graph, game.getPosts());
+	drawer.InitRenderObjects(graph, game.GetPosts());
 	
 	sf::Font label_font;
 	label_font.loadFromFile("fonts\\jai.ttf");
@@ -34,6 +36,7 @@ void Railway::start() {
 	FocusOnGraph(camera, graph);
 	while (window.isOpen())
 	{
+		controller.MakeTurn();
 		sf::Event event;
 		while (window.pollEvent(event))
 		{
