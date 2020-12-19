@@ -26,6 +26,9 @@ Controller::Controller()
 	for (const auto& i : coords) {
 		graph.SetVertexCoordinates(i.first, i.second);
 	}
+	moves.reserve(game.GetPlayer().GetTrains().size());
+	indices_to_distances = game.GetGraph().FloydWarshall();
+	system("pause");
 }
 
 Controller::~Controller()

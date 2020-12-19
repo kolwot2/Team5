@@ -37,3 +37,7 @@ struct ResposeMessage {
 	ResposeMessage() : result(Result::ACCESS_DENIED), data("") {}
 	ResposeMessage(const Result& result, const std::string& data) : result(result), data(data) {}
 };
+
+struct MoveRequest {
+	int line_idx, speed, train_idx;
+};

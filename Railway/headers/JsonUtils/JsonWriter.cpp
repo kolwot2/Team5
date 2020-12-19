@@ -1,4 +1,5 @@
 #include "JsonWriter.h"
+#include "../ServerConnection/Messages.h"
 
 using namespace rapidjson;
 using namespace std;
@@ -34,15 +35,15 @@ string JsonWriter::WriteMapLayer(int layer)
 	return "{\"layer\":" + to_string(layer) + "}";
 }
 
-string JsonWriter::WriteMove(int line_idx, int speed, int train_idx)
+string JsonWriter::WriteMove(MoveRequest move_request)
 {
 	Document document;
 	document.SetObject();
 	auto& alloc = document.GetAllocator();
 
-	document.AddMember("line_idx", line_idx, alloc);
-	document.AddMember("speed", speed, alloc);
-	document.AddMember("train_idx", train_idx, alloc);
+	document.AddMember("line_idx", move_request.line_idx, alloc);
+	document.AddMember("speed", move_request.speed, alloc);
+	document.AddMember("train_idx", move_request.train_idx, alloc);
 
 	StringBuffer buffer;
 	Writer<StringBuffer> writer(buffer);
