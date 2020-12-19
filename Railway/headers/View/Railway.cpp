@@ -2,7 +2,6 @@
 #include <algorithm>
 #include "SFML/Graphics.hpp"
 #include <fstream>
-#include <iostream>
 #include "Drawer.h"
 #include "Camera.h"
 #include "../ServerConnection/ServerConnection.h"
@@ -64,10 +63,11 @@ void Railway::start() {
 		window.clear();
 		
 		window.setView(camera);
-		//drawer.drawLabels(window, graph, label_font);
 		drawer.DrawObjects(window);
-		
+		mouse_tracker.GetMousePos(window);
+
 		window.setView(window.getDefaultView());
+		drawer.PrintPostInfo(window, game.GetPostInfo(mouse_tracker.CheckMouseOnPost(drawer.GetPostSprites())), label_font);
 		window.display();
 	}
 }

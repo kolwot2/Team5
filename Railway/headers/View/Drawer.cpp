@@ -18,15 +18,8 @@ Drawer::Drawer() {
 	textures[PostType::DEFAULT] = std::move(default_texture);
 }
 
-void Drawer::drawLabels(sf::RenderWindow &window, const Graph &graph, const sf::Font &label_font) {
-	const auto& vertexes = graph.GetVertexes();
-	for (const auto& vertex_pair : vertexes) {
-		const Vertex& vertex = vertex_pair.second;
-		sf::Text label_text(std::to_string(vertex.index), label_font, 50u);
-		label_text.setPosition(sf::Vector2f(vertex.pos.x, vertex.pos.y));
-		label_text.setFillColor(sf::Color::White);
-		window.draw(label_text);
-	}
+const std::vector<std::pair<sf::Sprite, int>>& Drawer::GetPostSprites() {
+	return posts;
 }
 
 void Drawer::InitRenderObjects(const Graph &graph, const std::unordered_map<int, std::shared_ptr<Post>>& idx_to_post) {
@@ -40,7 +33,7 @@ void Drawer::InitRenderObjects(const Graph &graph, const std::unordered_map<int,
 			sprite.setTexture(*textures[post.type]);
 			sprite.setPosition(sf::Vector2f(vertex.pos.x - sprite.getTexture()->getSize().x / 2.0f, 
 								vertex.pos.y - sprite.getTexture()->getSize().y / 2.0f));
-			posts.push_back({sprite, vertex.post_index});
+			posts.push_back({sprite, vertex.index});
 		}
 		else {
 			sf::Sprite sprite;
@@ -84,3 +77,12 @@ void Drawer::ScaleObjects(const float &scale_coeff) {
 								post_center.y - post_size.height / 2.0f));
 	}
 }
+
+void Drawer::PrintPostInfo(sf::RenderWindow &window, const std::string &post_info, const sf::Font &font) {
+	sf::Text info_label;
+	info_label.setString(post_info);
+	info_label.setFont(font);
+	info_label.setCharacterSize(18);
+	window.draw(info_label);
+}
+

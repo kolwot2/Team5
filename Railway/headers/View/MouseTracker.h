@@ -1,5 +1,6 @@
 #pragma once
-#include <SFML/Graphics.hpp>
+#include "Drawer.h"
+
 
 class MouseTracker {
 private:
@@ -7,5 +8,6 @@ private:
 public:
 	MouseTracker() = default;
 	MouseTracker(const MouseTracker &mstr) = delete;
-	sf::Vector2f getMousePos(const sf::RenderWindow &window);
+	sf::Vector2f GetMousePos(const sf::RenderWindow &window);
+	int CheckMouseOnPost(const std::vector<std::pair<sf::Sprite, int>> &posts);
 };
