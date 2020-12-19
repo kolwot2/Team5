@@ -22,6 +22,7 @@ Game::Game()
 	for (const auto& i : coords) {
 		graph.SetVertexCoordinates(i.first, i.second);
 	}
+	auto ans = graph.FloydWarshall();
 }
 
 Game::~Game()
