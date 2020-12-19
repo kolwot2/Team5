@@ -35,8 +35,8 @@ void Graph::SetVertexCoordinates(int idx, Point coordinates)
 
 std::unordered_map<int, std::unordered_map<int, int>> Graph::FloydWarshall() {
 	std::unordered_map<int, std::unordered_map<int, int>> result;
-	for (size_t i = 0; i < vertexes.size(); ++i) {
-		for (size_t j = 0; j < vertexes.size(); ++j) {
+	for (const auto& [i, vertex_i] : vertexes) {
+		for (const auto& [j, vertex_j] : vertexes) {
 			if (i == j) {
 				result[i][i] = 0;
 			}
@@ -48,9 +48,9 @@ std::unordered_map<int, std::unordered_map<int, int>> Graph::FloydWarshall() {
 			}
 		}
 	}
-	for (size_t k = 0; k < vertexes.size(); ++k) {
-		for (size_t j = 0; j < vertexes.size(); ++j) {
-			for (size_t i = 0; i < vertexes.size(); ++i) {
+	for (const auto& [k, vertex_k] : vertexes) {
+		for (const auto& [i, vertex_i] : vertexes) {
+			for (const auto& [j, vertex_j] : vertexes) {
 				if (result[i][k] < INT_MAX && result[k][j] < INT_MAX) {
 					result[i][j] = std::min(result[i][j], result[i][k] + result[k][j]);
 				}
@@ -63,7 +63,7 @@ std::unordered_map<int, std::unordered_map<int, int>> Graph::FloydWarshall() {
 std::vector<int> Graph::Dijkstra(int start_idx, int end_idx)
 {
 	const int INF = INT_MAX;
-	std::unordered_map<int, std::pair<int,int>> idx_to_dist_prev;
+	std::unordered_map<int, std::pair<int, int>> idx_to_dist_prev;
 	for (const auto& [idx, vertex] : vertexes) {
 		idx_to_dist_prev[idx] = { INF, idx };
 	}
