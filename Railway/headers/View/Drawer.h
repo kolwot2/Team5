@@ -10,7 +10,7 @@ class Drawer {
 public:
 	Drawer();
 	void drawLabels(sf::RenderWindow&, const Graph&, const sf::Font&);
-	void InitRenderObjects(const Graph&, const std::unordered_map<int, std::unique_ptr<Post>> &idx_to_post);
+	void InitRenderObjects(const Graph&, const std::unordered_map<int, std::shared_ptr<Post>> &idx_to_post);
 	void DrawObjects(sf::RenderWindow &window);
 	void ScaleObjects(const float &scale_coeff);
 };

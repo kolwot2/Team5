@@ -25,7 +25,7 @@ void Drawer::drawLabels(sf::RenderWindow &window, const Graph &graph, const sf::
 	}
 }
 
-void Drawer::InitRenderObjects(const Graph &graph, const std::unordered_map<int, std::unique_ptr<Post>>& idx_to_post) {
+void Drawer::InitRenderObjects(const Graph &graph, const std::unordered_map<int, std::shared_ptr<Post>>& idx_to_post) {
 	const auto& vertexes = graph.GetVertexes();
 	const auto& edges = graph.GetEdges();
 	for (const auto &vertex_pair : vertexes) {

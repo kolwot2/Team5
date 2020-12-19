@@ -61,18 +61,18 @@ Player JsonParser::ParsePlayer(std::string& input) {
 	return Player{ home, move(idx), in_game, move(name), rating, move(*town_ptr), move(trains) };
 }
 
-std::unordered_map<int, std::unique_ptr<Post>> JsonParser::ParsePosts(std::string& input) {
+std::unordered_map<int, std::shared_ptr<Post>> JsonParser::ParsePosts(std::string& input) {
 	using namespace rapidjson;
 	using namespace std;
 	Document doc;
 	doc.Parse(input.c_str());
 
-	unordered_map<int, unique_ptr<Post>> result;
+	unordered_map<int, shared_ptr<Post>> result;
 
 	const auto& posts_array = doc["posts"].GetArray();
 	for (const auto& item : posts_array) {
 		PostType type = static_cast<PostType>(item["type"].GetInt());
-		unique_ptr<Post> post_ptr;
+		shared_ptr<Post> post_ptr;
 		switch (type) {
 		case PostType::TOWN:
 			post_ptr = ParseTown(item);
@@ -132,7 +132,7 @@ std::vector<Train> JsonParser::ParseTrains(const rapidjson::GenericArray<false, 
 	return trains;
 }
 
-std::unique_ptr<Town> JsonParser::ParseTown(const rapidjson::Value& town_item) {
+std::shared_ptr<Town> JsonParser::ParseTown(const rapidjson::Value& town_item) {
 	auto town = std::make_unique<Town>();
 	town->armor = town_item["armor"].GetInt();
 	town->armor_capacity = town_item["armor_capacity"].GetInt();
@@ -156,7 +156,7 @@ std::unique_ptr<Town> JsonParser::ParseTown(const rapidjson::Value& town_item) {
 	return town;
 }
 
-std::unique_ptr<Market> JsonParser::ParseMarket(const rapidjson::Value& market_item) {
+std::shared_ptr<Market> JsonParser::ParseMarket(const rapidjson::Value& market_item) {
 	auto market = std::make_unique<Market>();
 	market->idx = market_item["idx"].GetInt();
 	market->name = market_item["name"].GetString();
@@ -167,7 +167,7 @@ std::unique_ptr<Market> JsonParser::ParseMarket(const rapidjson::Value& market_i
 	return market;
 }
 
-std::unique_ptr<Storage> JsonParser::ParseStorage(const rapidjson::Value& storage_item) {
+std::shared_ptr<Storage> JsonParser::ParseStorage(const rapidjson::Value& storage_item) {
 	auto storage = std::make_unique<Storage>();
 	storage->armor = storage_item["armor"].GetInt();
 	storage->armor_capacity = storage_item["armor_capacity"].GetInt();

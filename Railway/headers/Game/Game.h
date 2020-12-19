@@ -12,10 +12,10 @@ public:
 	Game();
 	~Game();
 	const Graph& GetGraph();
-	const std::unordered_map<int, std::unique_ptr<Post>> &getPosts();
+	const std::unordered_map<int, std::shared_ptr<Post>> &getPosts();
 private:
 	Graph graph;
-	std::unordered_map<int, std::unique_ptr<Post>> idx_to_post;
+	std::unordered_map<int, std::shared_ptr<Post>> idx_to_post;
 	Player player;
 	ServerConnection connection;
 };
