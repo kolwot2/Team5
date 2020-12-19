@@ -1,4 +1,7 @@
 #include "Graph.h"
+#include <queue>
+#include <algorithm>
+#include <set>
 
 void Graph::AddEdge(const Edge& edge, int x, int y)
 {
@@ -28,6 +31,67 @@ const std::unordered_map <int, Vertex>& Graph::GetVertexes() const
 void Graph::SetVertexCoordinates(int idx, Point coordinates)
 {
 	vertexes[idx].pos = coordinates;
+}
+
+std::unordered_map<int, std::unordered_map<int, int>> Graph::FloydWarshall() {
+	std::unordered_map<int, std::unordered_map<int, int>> result;
+	for (size_t i = 0; i < vertexes.size(); ++i) {
+		for (size_t j = 0; j < vertexes.size(); ++j) {
+			if (i == j) {
+				result[i][i] = 0;
+			}
+			else if (edges[i].find(j) != edges[i].end()) {
+				result[i][j] = edges[i][j].length;
+			}
+			else {
+				result[i][j] = INT_MAX;
+			}
+		}
+	}
+	for (size_t k = 0; k < vertexes.size(); ++k) {
+		for (size_t j = 0; j < vertexes.size(); ++j) {
+			for (size_t i = 0; i < vertexes.size(); ++i) {
+				if (result[i][k] < INT_MAX && result[k][j] < INT_MAX) {
+					result[i][j] = std::min(result[i][j], result[i][k] + result[k][j]);
+				}
+			}
+		}
+	}
+	return result;
+}
+
+std::vector<int> Graph::Dijkstra(int start_idx, int end_idx)
+{
+	const int INF = INT_MAX;
+	std::unordered_map<int, std::pair<int,int>> idx_to_dist_prev;
+	for (const auto& [idx, vertex] : vertexes) {
+		idx_to_dist_prev[idx] = { INF, idx };
+	}
+	idx_to_dist_prev[start_idx] = { 0,0 };
+
+	std::set<std::pair<int, int>> distances;
+	distances.emplace(0, start_idx);
+	while (!distances.empty()) {
+		auto [current_dist, current_idx] = *distances.begin();
+		distances.erase(distances.begin());
+
+		for (const auto& [idx, edge] : edges[current_idx]) {
+			if (int dist = current_dist + edge.length;
+				dist < idx_to_dist_prev[idx].first) {
+				distances.erase({ idx, idx_to_dist_prev[idx].first });
+				idx_to_dist_prev[idx].first = dist;
+				idx_to_dist_prev[idx].second = current_dist;
+				distances.emplace(dist, idx);
+			}
+		}
+	}
+	std::vector<int> way = { end_idx };
+	for (int current_idx = idx_to_dist_prev[end_idx].second; current_idx != start_idx;
+		current_idx = idx_to_dist_prev[current_idx].second) {
+		way.push_back(current_idx);
+	}
+	std::reverse(way.begin(), way.end());
+	return way;
 }
 
 Vertex::Vertex(int ind, int post_ind, Point pt)
