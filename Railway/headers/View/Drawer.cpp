@@ -12,6 +12,10 @@ Drawer::Drawer() {
 	std::unique_ptr<sf::Texture> market_texture(new sf::Texture);
 	market_texture->loadFromFile("textures/market.png");
 	textures[PostType::MARKET] = std::move(market_texture);
+
+	std::unique_ptr<sf::Texture> default_texture(new sf::Texture);
+	default_texture->loadFromFile("textures/default.png");
+	textures[PostType::DEFAULT] = std::move(default_texture);
 }
 
 void Drawer::drawLabels(sf::RenderWindow &window, const Graph &graph, const sf::Font &label_font) {
@@ -36,6 +40,13 @@ void Drawer::InitRenderObjects(const Graph &graph, const std::unordered_map<int,
 			sprite.setTexture(*textures[post.type]);
 			sprite.setPosition(sf::Vector2f(vertex.pos.x - sprite.getTexture()->getSize().x / 2.0f, 
 								vertex.pos.y - sprite.getTexture()->getSize().y / 2.0f));
+			posts.push_back(sprite);
+		}
+		else {
+			sf::Sprite sprite;
+			sprite.setTexture(*textures[PostType::DEFAULT]);
+			sprite.setPosition(sf::Vector2f(vertex.pos.x - sprite.getTexture()->getSize().x / 2.0f,
+				vertex.pos.y - sprite.getTexture()->getSize().y / 2.0f));
 			posts.push_back(sprite);
 		}
 	}

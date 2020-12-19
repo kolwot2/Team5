@@ -39,6 +39,8 @@ public:
 	std::unordered_map <int, Vertex>& GetVertexes();
 	const std::unordered_map <int, Vertex>& GetVertexes() const;
 	void SetVertexCoordinates(int, Point);
+	std::unordered_map<int, std::unordered_map<int, int>> FloydWarshall();
+	std::vector<int> Dijkstra(int, int);
 };
 
 void PlaceGraph(Graph &,const float&, const float&, const float&, const float&);
