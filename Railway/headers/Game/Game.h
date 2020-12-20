@@ -17,6 +17,7 @@ public:
 	const Graph& GetGraph() const;
 	const PostMap& GetPosts() const;
 	const Player& GetPlayer() const;
+	std::string GetPostInfo(const int &post_index) const;
 private:
 	Graph graph;
 	PostMap idx_to_post;
