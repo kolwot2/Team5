@@ -43,3 +43,38 @@ std::vector<Train>& Player::GetTrains()
 {
 	return trains;
 }
+
+const Home& Player::GetHome() const
+{
+	return home;
+}
+
+const std::string& Player::GetIdx() const
+{
+	return idx;
+}
+
+const bool Player::IsInGame() const
+{
+	return in_game;
+}
+
+const std::string Player::GetName() const
+{
+	return name;
+}
+
+const int& Player::GetRating() const
+{
+	return rating;
+}
+
+const Town& Player::GetHomeTown() const
+{
+	return home_town;
+}
+
+const std::vector<Train>& Player::GetTrains() const
+{
+	return trains;
+}

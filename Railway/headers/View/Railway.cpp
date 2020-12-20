@@ -28,7 +28,7 @@ void Railway::start() {
 	CameraConfig camera_config;
 	
 	Drawer drawer;
-	drawer.InitRenderObjects(graph, game.GetPosts());
+	drawer.InitRenderObjects(game);
 	
 	sf::Font label_font;
 	label_font.loadFromFile("fonts\\jai.ttf");

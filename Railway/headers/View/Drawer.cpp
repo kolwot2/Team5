@@ -2,7 +2,7 @@
 
 Drawer::Drawer() {
 	std::unique_ptr<sf::Texture> town_texture(new sf::Texture);
-	town_texture->loadFromFile("textures/train.png");
+	town_texture->loadFromFile("textures/town.png");
 	textures["town"] = std::move(town_texture);
 
 	std::unique_ptr<sf::Texture> storage_texture(new sf::Texture);
@@ -13,9 +13,9 @@ Drawer::Drawer() {
 	market_texture->loadFromFile("textures/market.png");
 	textures["market"] = std::move(market_texture);
 
-	/*std::unique_ptr<sf::Texture> train_texture(new sf::Texture);
+	std::unique_ptr<sf::Texture> train_texture(new sf::Texture);
 	train_texture->loadFromFile("textures/train.png");
-	textures["train"] = std::move(train_texture);*/
+	textures["train"] = std::move(market_texture);
 
 	std::unique_ptr<sf::Texture> default_texture(new sf::Texture);
 	default_texture->loadFromFile("textures/default.png");
@@ -23,12 +23,15 @@ Drawer::Drawer() {
 }
 
 const std::vector<std::pair<sf::Sprite, int>>& Drawer::GetPostSprites() {
-	return posts;
+	return posts_sprites;
 }
 
-void Drawer::InitRenderObjects(const Graph &graph, const std::unordered_map<int, std::shared_ptr<Post>>& idx_to_post) {
-	const auto& vertexes = graph.GetVertexes();
-	const auto& edges = graph.GetEdges();
+void Drawer::InitRenderObjects(const Game &game) {
+	const auto &graph = game.GetGraph();
+	const auto &idx_to_post = game.GetPosts();
+	const auto &vertexes = graph.GetVertexes();
+	const auto &edges = graph.GetEdges();
+	const auto &trains = game.GetPlayer().GetTrains();
 	for (const auto &vertex_pair : vertexes) {
 		const auto &vertex = vertex_pair.second;
 		if (idx_to_post.find(vertex.index) != idx_to_post.end()) {
@@ -39,14 +42,14 @@ void Drawer::InitRenderObjects(const Graph &graph, const std::unordered_map<int,
 			if (post.type == PostType::STORAGE) sprite.setTexture(*textures["storage"]);
 			sprite.setPosition(sf::Vector2f(vertex.pos.x - sprite.getTexture()->getSize().x / 2.0f, 
 								vertex.pos.y - sprite.getTexture()->getSize().y / 2.0f));
-			posts.push_back({sprite, vertex.index});
+			posts_sprites.push_back({sprite, vertex.index});
 		}
 		else {
 			sf::Sprite sprite;
 			sprite.setTexture(*textures["default"]);
 			sprite.setPosition(sf::Vector2f(vertex.pos.x - sprite.getTexture()->getSize().x / 2.0f,
 				vertex.pos.y - sprite.getTexture()->getSize().y / 2.0f));
-			posts.push_back({sprite, vertex.index});
+			posts_sprites.push_back({sprite, vertex.index});
 		}
 	}
 	
@@ -60,19 +63,24 @@ void Drawer::InitRenderObjects(const Graph &graph, const std::unordered_map<int,
 			this->edges.push_back(line);
 		}
 	}
+
+	/*for (const auto &train : trains) {
+		sf::Sprite train_sprite;
+		train_sprite.setTexture(*textures["train"]);
+	}*/
 }
 
 void Drawer::DrawObjects(sf::RenderWindow &window) {
 	for (auto &edge : edges) {
 		window.draw(&edge[0], edge.size(), sf::Lines);
 	}
-	for (const auto &post : posts) {
+	for (const auto &post : posts_sprites) {
 		window.draw(post.first);
 	}
 }
 
 void Drawer::ScaleObjects(const float &scale_coeff) {
-	for (auto &post : posts) {
+	for (auto &post : posts_sprites) {
 		sf::Vector2f cur_position = post.first.getPosition();
 		sf::FloatRect prev_post_size = post.first.getGlobalBounds();
 		sf::Vector2f post_center = sf::Vector2f(cur_position.x + prev_post_size.width / 2.0f,

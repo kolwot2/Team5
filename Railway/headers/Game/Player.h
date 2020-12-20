@@ -21,6 +21,13 @@ public:
 	int& GetRating();
 	Town& GetHomeTown();
 	std::vector<Train>& GetTrains();
+	const Home& GetHome() const;
+	const std::string& GetIdx() const;
+	const bool IsInGame() const;
+	const std::string GetName() const;
+	const int& GetRating() const;
+	const Town& GetHomeTown() const;
+	const std::vector<Train>& GetTrains() const;
 private:
 	Home home;
 	std::string idx;
