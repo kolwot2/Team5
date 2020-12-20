@@ -40,7 +40,7 @@ void Drawer::InitRenderObjects(const Graph &graph, const std::unordered_map<int,
 			sprite.setTexture(*textures[PostType::DEFAULT]);
 			sprite.setPosition(sf::Vector2f(vertex.pos.x - sprite.getTexture()->getSize().x / 2.0f,
 				vertex.pos.y - sprite.getTexture()->getSize().y / 2.0f));
-			posts.push_back({sprite, -1});
+			posts.push_back({sprite, vertex.index});
 		}
 	}
 	

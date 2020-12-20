@@ -74,5 +74,10 @@ std::string Game::GetPostInfo(const int &post_index) {
 			post_info += "Armor capacity: " + std::to_string(storage->armor_capacity) + "\n";
 		}
 	}
+	else {
+		if (post_index != -1) {
+			post_info += "Point Index: " + std::to_string(post_index) + "\n";
+		}
+	}
 	return post_info;
 }
