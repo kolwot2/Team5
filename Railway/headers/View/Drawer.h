@@ -4,7 +4,7 @@
 #include "../Game/Posts.h"
 
 class Drawer {
-	std::map <PostType, std::unique_ptr<sf::Texture>> textures;
+	std::unordered_map <std::string, std::unique_ptr<sf::Texture>> textures;
 	std::vector < std::pair <sf::Sprite, int>> posts;
 	std::vector <std::vector <sf::Vertex>> edges;
 public:

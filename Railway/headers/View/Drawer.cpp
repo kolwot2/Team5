@@ -2,20 +2,24 @@
 
 Drawer::Drawer() {
 	std::unique_ptr<sf::Texture> town_texture(new sf::Texture);
-	town_texture->loadFromFile("textures/town.png");
-	textures[PostType::TOWN] = std::move(town_texture);
+	town_texture->loadFromFile("textures/train.png");
+	textures["town"] = std::move(town_texture);
 
 	std::unique_ptr<sf::Texture> storage_texture(new sf::Texture);
 	storage_texture->loadFromFile("textures/storage.png");
-	textures[PostType::STORAGE] = std::move(storage_texture);
+	textures["storage"] = std::move(storage_texture);
 
 	std::unique_ptr<sf::Texture> market_texture(new sf::Texture);
 	market_texture->loadFromFile("textures/market.png");
-	textures[PostType::MARKET] = std::move(market_texture);
+	textures["market"] = std::move(market_texture);
+
+	/*std::unique_ptr<sf::Texture> train_texture(new sf::Texture);
+	train_texture->loadFromFile("textures/train.png");
+	textures["train"] = std::move(train_texture);*/
 
 	std::unique_ptr<sf::Texture> default_texture(new sf::Texture);
 	default_texture->loadFromFile("textures/default.png");
-	textures[PostType::DEFAULT] = std::move(default_texture);
+	textures["default"] = std::move(default_texture);
 }
 
 const std::vector<std::pair<sf::Sprite, int>>& Drawer::GetPostSprites() {
@@ -30,14 +34,16 @@ void Drawer::InitRenderObjects(const Graph &graph, const std::unordered_map<int,
 		if (idx_to_post.find(vertex.index) != idx_to_post.end()) {
 			Post post = *idx_to_post.at(vertex.index);
 			sf::Sprite sprite;
-			sprite.setTexture(*textures[post.type]);
+			if(post.type == PostType::TOWN) sprite.setTexture(*textures["town"]);
+			if(post.type == PostType::MARKET) sprite.setTexture(*textures["market"]);
+			if (post.type == PostType::STORAGE) sprite.setTexture(*textures["storage"]);
 			sprite.setPosition(sf::Vector2f(vertex.pos.x - sprite.getTexture()->getSize().x / 2.0f, 
 								vertex.pos.y - sprite.getTexture()->getSize().y / 2.0f));
 			posts.push_back({sprite, vertex.index});
 		}
 		else {
 			sf::Sprite sprite;
-			sprite.setTexture(*textures[PostType::DEFAULT]);
+			sprite.setTexture(*textures["default"]);
 			sprite.setPosition(sf::Vector2f(vertex.pos.x - sprite.getTexture()->getSize().x / 2.0f,
 				vertex.pos.y - sprite.getTexture()->getSize().y / 2.0f));
 			posts.push_back({sprite, vertex.index});
