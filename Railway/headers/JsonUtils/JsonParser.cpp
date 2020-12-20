@@ -26,12 +26,12 @@ Graph JsonParser::ParseGraph(std::string& input) {
 		int v1 = v[0].GetInt();
 		int v2 = v[1].GetInt();
 		graph.AddEdge(
-			{ idx, length },
+			{ idx, length, false },
 			v1,
 			v2
 		);
 		graph.AddEdge(
-			{ idx, length },
+			{ idx, length, true },
 			v2,
 			v1
 		);
@@ -106,6 +106,7 @@ std::vector<std::pair<int, Point>> JsonParser::ParseCoordinates(std::string& inp
 
 std::vector<Train> JsonParser::ParseTrains(const rapidjson::GenericArray<false, rapidjson::Value>& array) {
 	std::vector<Train> trains;
+	trains.reserve(array.Size());
 	for (const auto& item : array) {
 		Train train;
 		train.cooldown = item["cooldown"].GetInt();
@@ -128,6 +129,7 @@ std::vector<Train> JsonParser::ParseTrains(const rapidjson::GenericArray<false, 
 		train.player_idx = item["player_idx"].GetString();
 		train.position = item["position"].GetInt();
 		train.speed = item["speed"].GetInt();
+		trains.push_back(train);
 	}
 	return trains;
 }

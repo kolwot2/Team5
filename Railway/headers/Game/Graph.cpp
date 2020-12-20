@@ -67,7 +67,7 @@ std::vector<int> Graph::Dijkstra(int start_idx, int end_idx)
 	for (const auto& [idx, vertex] : vertexes) {
 		idx_to_dist_prev[idx] = { INF, idx };
 	}
-	idx_to_dist_prev[start_idx] = { 0,0 };
+	idx_to_dist_prev[start_idx] = { 0,start_idx };
 
 	std::set<std::pair<int, int>> distances;
 	distances.emplace(0, start_idx);
@@ -78,13 +78,14 @@ std::vector<int> Graph::Dijkstra(int start_idx, int end_idx)
 		for (const auto& [idx, edge] : edges[current_idx]) {
 			if (int dist = current_dist + edge.length;
 				dist < idx_to_dist_prev[idx].first) {
-				distances.erase({ idx, idx_to_dist_prev[idx].first });
+				distances.erase({ idx_to_dist_prev[idx].first, idx });
 				idx_to_dist_prev[idx].first = dist;
-				idx_to_dist_prev[idx].second = current_dist;
+				idx_to_dist_prev[idx].second = current_idx;
 				distances.emplace(dist, idx);
 			}
 		}
 	}
+	
 	std::vector<int> way = { end_idx };
 	for (int current_idx = idx_to_dist_prev[end_idx].second; current_idx != start_idx;
 		current_idx = idx_to_dist_prev[current_idx].second) {
@@ -93,6 +94,18 @@ std::vector<int> Graph::Dijkstra(int start_idx, int end_idx)
 	std::reverse(way.begin(), way.end());
 	return way;
 }
+
+int Graph::GetVertexFromPosition(int line_idx, int pos)
+{
+	for (const auto& [from, edges_map]:edges) {
+		for (const auto& [to, edge] : edges_map) {
+			if (line_idx == edge.index) {
+				return pos == 0 ? from : to;
+			}
+		}
+	}
+}
+
 
 Vertex::Vertex(int ind, int post_ind, Point pt)
 	: index{ ind }, post_index{ post_ind }, pos{ pt } {}

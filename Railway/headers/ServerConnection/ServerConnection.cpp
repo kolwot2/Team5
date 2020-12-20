@@ -17,7 +17,9 @@ void ServerConnection::send(const ActionMessage &actionMessage) {
 	socket.send(reinterpret_cast<char*>(&type), sizeof(type));
 	int length = actionMessage.data.size();
 	socket.send(reinterpret_cast<char*>(&length), sizeof(length));
-	socket.send(actionMessage.data.c_str(), (size_t)length);
+	if (length) {
+		socket.send(actionMessage.data.c_str(), (size_t)length);
+	}
 }
 
 ResposeMessage ServerConnection::recieve() {

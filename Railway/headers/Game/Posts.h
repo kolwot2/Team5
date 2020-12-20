@@ -15,6 +15,7 @@ struct Post {
 	std::vector<Event> events;
 	std::string name;
 	int idx, point_idx;
+	virtual ~Post() = default;
 };
 
 struct Town :public Post {
