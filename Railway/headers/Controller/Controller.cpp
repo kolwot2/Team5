@@ -98,8 +98,8 @@ void Controller::MakeMoveRequests(int train_idx, int start, int end)
 	for (int from = start, to, i = 0; i < way.size(); from = to, ++i) {
 		to = way[i];
 		auto& edge = edges.at(from).at(to);
-		int speed = edge.is_reversed ? -1 : 1;
-		moves[train_idx].push({ edge.index, speed, train_idx });
+		int speed = edge->is_reversed ? -1 : 1;
+		moves[train_idx].push({ edge->index, speed, train_idx });
 	}
 }
 
@@ -113,7 +113,7 @@ void Controller::SendMoveRequests()
 	std::unordered_map<int, int> idx_to_length;
 	for (const auto& [i,m] : game.GetGraph().GetEdges()) {
 		for (const auto& [j, edge] : m) {
-			idx_to_length[edge.index] = edge.length;
+			idx_to_length[edge->index] = edge->length;
 		}
 	}
 	for (auto& [idx, request_queue] : moves) {

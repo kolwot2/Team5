@@ -21,22 +21,26 @@ struct Vertex
 
 struct Edge
 {
+	int from;
+	int to;
 	int index;
 	int length;
 	bool is_reversed;
 };
 
-using Edg = std::unordered_map <int, std::unordered_map <int, Edge>>;
+using Edg = std::unordered_map <int, std::unordered_map <int, std::shared_ptr<Edge>>>;
 
 class Graph
 {
 	Edg edges;
+	std::unordered_map<int, std::shared_ptr<Edge>> idx_to_edge;
 	std::unordered_map <int, Vertex> vertexes;
 
 public:
-	void AddEdge(const Edge&, int, int);
+	void AddEdge(std::shared_ptr<Edge>);
 	void AddVertex(const Vertex&);
 	const Edg& GetEdges() const;
+	const std::unordered_map<int, std::shared_ptr<Edge>>& GetIndices() const;
 	std::unordered_map <int, Vertex>& GetVertexes();
 	const std::unordered_map <int, Vertex>& GetVertexes() const;
 	void SetVertexCoordinates(int, Point);

@@ -3,9 +3,10 @@
 #include <algorithm>
 #include <set>
 
-void Graph::AddEdge(const Edge& edge, int x, int y)
+void Graph::AddEdge(std::shared_ptr<Edge> edge)
 {
-	edges[x][y] = edge;
+	edges[edge->from][edge->to] = edge;
+	idx_to_edge[edge->index] = edge;
 }
 
 void Graph::AddVertex(const Vertex& item)
@@ -16,6 +17,11 @@ void Graph::AddVertex(const Vertex& item)
 const Edg& Graph::GetEdges() const
 {
 	return edges;
+}
+
+const std::unordered_map<int, std::shared_ptr<Edge>>& Graph::GetIndices() const
+{
+	return idx_to_edge;
 }
 
 std::unordered_map <int, Vertex>& Graph::GetVertexes()
@@ -41,7 +47,7 @@ std::unordered_map<int, std::unordered_map<int, int>> Graph::FloydWarshall() {
 				result[i][i] = 0;
 			}
 			else if (edges[i].find(j) != edges[i].end()) {
-				result[i][j] = edges[i][j].length;
+				result[i][j] = edges[i][j]->length;
 			}
 			else {
 				result[i][j] = INT_MAX;
@@ -76,7 +82,7 @@ std::vector<int> Graph::Dijkstra(int start_idx, int end_idx)
 		distances.erase(distances.begin());
 
 		for (const auto& [idx, edge] : edges[current_idx]) {
-			if (int dist = current_dist + edge.length;
+			if (int dist = current_dist + edge->length;
 				dist < idx_to_dist_prev[idx].first) {
 				distances.erase({ idx_to_dist_prev[idx].first, idx });
 				idx_to_dist_prev[idx].first = dist;
@@ -99,7 +105,7 @@ int Graph::GetVertexFromPosition(int line_idx, int pos)
 {
 	for (const auto& [from, edges_map]:edges) {
 		for (const auto& [to, edge] : edges_map) {
-			if (line_idx == edge.index) {
+			if (line_idx == edge->index) {
 				return pos == 0 ? from : to;
 			}
 		}

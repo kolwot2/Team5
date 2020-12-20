@@ -1,4 +1,5 @@
 #include "JsonParser.h"
+#include <memory>
 
 Graph JsonParser::ParseGraph(std::string& input) {
 	using namespace rapidjson;
@@ -25,16 +26,8 @@ Graph JsonParser::ParseGraph(std::string& input) {
 		int length = item["length"].GetInt();
 		int v1 = v[0].GetInt();
 		int v2 = v[1].GetInt();
-		graph.AddEdge(
-			{ idx, length, false },
-			v1,
-			v2
-		);
-		graph.AddEdge(
-			{ idx, length, true },
-			v2,
-			v1
-		);
+		graph.AddEdge(std::shared_ptr<Edge>{ new Edge{ v1, v2, idx, length, false } });
+		graph.AddEdge(std::shared_ptr<Edge>{ new Edge{ v2, v1, idx, length, true } });
 	}
 	return graph;
 }
