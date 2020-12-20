@@ -38,9 +38,18 @@ void Railway::start() {
 
 	MouseTracker mouse_tracker;
 
+	//async make_turn
+	auto make_turn = [&controller]() {
+		while (true) {
+			controller.MakeTurn();
+			std::this_thread::sleep_for(std::chrono::milliseconds(500));
+		}
+	};
+
+	auto async_turn = std::async(make_turn);
+
 	while (window.isOpen())
 	{
-		controller.MakeTurn();
 		sf::Event event;
 		while (window.pollEvent(event))
 		{
