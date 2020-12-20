@@ -43,27 +43,16 @@ const Game& Controller::GetGame()
 
 void Controller::MakeTurn()
 {
-	auto start = std::chrono::system_clock::now();
+	//auto start = std::chrono::system_clock::now();
 
 	UpdateGame();
 	MoveTrains();
 	SendMoveRequests();
 	EndTurn();
 
-	std::cout << "----------------------" << std::endl;
-	for (const auto& train : game.GetPlayer().GetTrains()) {
-		std::cout << train.idx << ' ' << train.line_idx << ' ' << train.position
-			<< ' ' << train.speed << ' ' << train.goods << std::endl;
-	}
-
-	std::cout << game.GetPlayer().GetHomeTown().armor << ' '
-		<< game.GetPlayer().GetHomeTown().product << ' '
-		<< game.GetPlayer().GetHomeTown().population << ' ' << game.GetPlayer().GetRating() << std::endl;
-	std::cout << "----------------------" << std::endl;
-
-	auto end = std::chrono::system_clock::now();
+	/*auto end = std::chrono::system_clock::now();
 	std::chrono::duration<double> elapsed = end - start;
-	//std::cout << elapsed.count() << std::endl;
+	std::cout << elapsed.count() << std::endl;*/
 }
 
 void Controller::UpdateGame()

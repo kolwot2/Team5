@@ -24,6 +24,5 @@ private:
 	ServerConnection connection;
 	std::unordered_map<int, std::queue<MoveRequest>> moves;
 	std::unordered_map<int, std::unordered_map<int, int>> indices_to_distances;
-
 };
 

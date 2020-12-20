@@ -14,4 +14,5 @@ public:
 	void DrawObjects(sf::RenderWindow &window);
 	void ScaleObjects(const float &scale_coeff);
 	void PrintPostInfo(sf::RenderWindow &window, const std::string &post_info, const sf::Font &font);
+	void UpdateTrainSpriteState(const Game &game);
 };

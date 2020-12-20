@@ -10,6 +10,7 @@
 #include "../Game/Game.h"
 #include "../Controller/Controller.h"
 #include "MouseTracker.h"
+#include <future>
 
 Railway::Railway(int winWidth, int winHeight) 
 	: windowWidth{std::max(winWidth, 0)}, windowHeight{std::max(winHeight, 0)} {}
@@ -66,6 +67,7 @@ void Railway::start() {
 		window.clear();
 		
 		window.setView(camera);
+		drawer.UpdateTrainSpriteState(game);
 		drawer.DrawObjects(window);
 		mouse_tracker.GetMousePos(window);
 

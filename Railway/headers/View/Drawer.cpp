@@ -15,7 +15,7 @@ Drawer::Drawer() {
 
 	std::unique_ptr<sf::Texture> train_texture(new sf::Texture);
 	train_texture->loadFromFile("textures/train.png");
-	textures["train"] = std::move(market_texture);
+	textures["train"] = std::move(train_texture);
 
 	std::unique_ptr<sf::Texture> default_texture(new sf::Texture);
 	default_texture->loadFromFile("textures/default.png");
@@ -64,10 +64,11 @@ void Drawer::InitRenderObjects(const Game &game) {
 		}
 	}
 
-	/*for (const auto &train : trains) {
+	for (const auto &train : trains) {
 		sf::Sprite train_sprite;
 		train_sprite.setTexture(*textures["train"]);
-	}*/
+		trains_sprites.push_back({train_sprite, train.idx});
+	}
 }
 
 void Drawer::DrawObjects(sf::RenderWindow &window) {
@@ -76,6 +77,10 @@ void Drawer::DrawObjects(sf::RenderWindow &window) {
 	}
 	for (const auto &post : posts_sprites) {
 		window.draw(post.first);
+	}
+
+	for (const auto &[sprite, index] : trains_sprites) {
+		window.draw(sprite);
 	}
 }
 
@@ -90,6 +95,17 @@ void Drawer::ScaleObjects(const float &scale_coeff) {
 		post.first.setPosition(sf::Vector2f(post_center.x - post_size.width / 2.0f,
 								post_center.y - post_size.height / 2.0f));
 	}
+
+	for (auto &[train_sprite, train_index] : trains_sprites) {
+		sf::Vector2f cur_position = train_sprite.getPosition();
+		sf::FloatRect prev_train_size = train_sprite.getGlobalBounds();
+		sf::Vector2f train_center = sf::Vector2f(cur_position.x + prev_train_size.width / 2.0f,
+			cur_position.y + prev_train_size.height / 2.0f);
+		train_sprite.scale(sf::Vector2f(scale_coeff, scale_coeff));
+		sf::FloatRect post_size = train_sprite.getGlobalBounds();
+		train_sprite.setPosition(sf::Vector2f(train_center.x - post_size.width / 2.0f,
+			train_center.y - post_size.height / 2.0f));
+	}
 }
 
 void Drawer::PrintPostInfo(sf::RenderWindow &window, const std::string &post_info, const sf::Font &font) {
@@ -98,5 +114,29 @@ void Drawer::PrintPostInfo(sf::RenderWindow &window, const std::string &post_inf
 	info_label.setFont(font);
 	info_label.setCharacterSize(18);
 	window.draw(info_label);
+}
+
+void Drawer::UpdateTrainSpriteState(const Game &game) {
+	const auto &trains = game.GetPlayer().GetTrains();
+	const auto &idx_to_edge = game.GetGraph().GetIndices();
+	const auto &vertecies = game.GetGraph().GetVertexes();
+	for (auto &[train_sprite, train_index] : trains_sprites) {
+		for (const auto &train : trains) {
+			if (train_index == train.idx) {
+				const int &edge_ind = train.line_idx;
+				const auto &edge = *idx_to_edge.at(edge_ind);
+				const auto &start_point = vertecies.at(edge.from).pos;
+				const auto &end_point = vertecies.at(edge.to).pos;
+				float dir_cos = (end_point.x - start_point.x) / edge.length;
+				float dir_sin = (end_point.y - start_point.y) / edge.length;
+				Point center;
+				center.x = end_point.x - dir_cos * train.position;
+				center.y = end_point.y - dir_sin * train.position;
+				
+				train_sprite.setPosition(center.x - train_sprite.getGlobalBounds().width / 2.0f,
+					center.y - train_sprite.getGlobalBounds().height / 2.0f);
+			}
+		}
+	}
 }
 
