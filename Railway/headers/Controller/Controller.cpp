@@ -27,8 +27,7 @@ Controller::Controller()
 	for (const auto& i : coords) {
 		graph.SetVertexCoordinates(i.first, i.second);
 	}
-	moves.reserve(game.GetPlayer().GetTrains().size());
-	indices_to_distances = game.GetGraph().FloydWarshall();
+	route_manager = std::make_unique<RouteManager>(game);
 }
 
 Controller::~Controller()
@@ -46,8 +45,8 @@ void Controller::MakeTurn()
 	//auto start = std::chrono::system_clock::now();
 
 	UpdateGame();
-	MoveTrains();
-	SendMoveRequests();
+	auto moves = route_manager->MakeMoves(game);
+	SendMoveRequests(moves);
 	EndTurn();
 
 	/*auto end = std::chrono::system_clock::now();
@@ -68,52 +67,12 @@ void Controller::UpdateGame()
 	idx_to_post = JsonParser::ParsePosts(map_layer1_response.data);
 }
 
-void Controller::MoveTrains()
+void Controller::SendMoveRequests(const std::vector<MoveRequest>& moves)
 {
-	for (const auto& train : game.GetPlayer().GetTrains()) {
-		int vertex_idx = game.GetGraph().GetVertexFromPosition(train.line_idx, train.position);
-		if (moves[train.idx].empty()) {
-			auto priority = CalculatePriority(vertex_idx);
-			MakeMoveRequests(train.idx, vertex_idx, priority.begin()->second);
-			MakeMoveRequests(train.idx, priority.begin()->second, vertex_idx);
-		}
-	}
-}
-
-void Controller::MakeMoveRequests(int train_idx, int start, int end)
-{
-	const auto& edges = game.GetGraph().GetEdges();
-	auto way = game.GetGraph().Dijkstra(start, end);
-	for (int from = start, to, i = 0; i < way.size(); from = to, ++i) {
-		to = way[i];
-		auto& edge = edges.at(from).at(to);
-		int speed = edge->is_reversed ? -1 : 1;
-		moves[train_idx].push({ edge->index, speed, train_idx });
-	}
-}
-
-void Controller::SendMoveRequests()
-{
-	const auto& edges = game.GetGraph().GetEdges();
-	std::unordered_map<int, Train> idx_to_train;
-	for (const auto& train : game.GetPlayer().GetTrains()) {
-		idx_to_train[train.idx] = train;
-	}
-	std::unordered_map<int, int> idx_to_length;
-	for (const auto& [i,m] : game.GetGraph().GetEdges()) {
-		for (const auto& [j, edge] : m) {
-			idx_to_length[edge->index] = edge->length;
-		}
-	}
-	for (auto& [idx, request_queue] : moves) {
-		if (idx_to_train[idx].position == idx_to_length[idx_to_train[idx].line_idx]
-			|| idx_to_train[idx].position == 0) {
-			auto request = request_queue.front();
-			request_queue.pop();
-			connection.send(ActionMessage{ Action::MOVE, JsonWriter::WriteMove(request) });
-			auto msg = connection.recieve();
-		}
-		break;
+	for (const auto& request : moves) {
+		connection.send(ActionMessage{ Action::MOVE, JsonWriter::WriteMove(request) });
+		auto msg = connection.recieve();
+		std::cout << static_cast<int>(msg.result) << std::endl;
 	}
 }
 
@@ -121,17 +80,4 @@ void Controller::EndTurn()
 {
 	connection.send(ActionMessage{ Action::TURN, "" });
 	auto msg = connection.recieve();
-}
-
-std::set<std::pair<double, int>> Controller::CalculatePriority(int start_idx)
-{
-	std::set<std::pair<double, int>> priority;
-	for (const auto& [idx, post] : game.GetPosts()) {
-		if (post->type == PostType::MARKET) {
-			auto market = std::dynamic_pointer_cast<Market>(post);
-			priority.insert({ static_cast<double>(market->product) /
-				indices_to_distances[start_idx][idx], idx });
-		}
-	}
-	return priority;
 }

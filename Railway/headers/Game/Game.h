@@ -6,9 +6,10 @@
 #include "../ServerConnection/ServerConnection.h"
 #include "../ServerConnection/Login.h"
 
+using PostMap = std::unordered_map<int, std::shared_ptr<Post>>;
+
 class Game
 {
-	using PostMap = std::unordered_map<int, std::shared_ptr<Post>>;
 public:
 	Game() = default;
 	Graph& GetGraph();
@@ -18,6 +19,7 @@ public:
 	const PostMap& GetPosts() const;
 	const Player& GetPlayer() const;
 	std::string GetPostInfo(const int &post_index) const;
+	PostType GetPostType(int) const;
 private:
 	Graph graph;
 	PostMap idx_to_post;

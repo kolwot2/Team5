@@ -48,8 +48,8 @@ string JsonWriter::WriteMove(MoveRequest move_request)
 	StringBuffer buffer;
 	Writer<StringBuffer> writer(buffer);
 	document.Accept(writer);
-
-	return move(buffer.GetString());
+	std::string s = buffer.GetString();
+	return move(s);
 }
 
 string JsonWriter::WriteUpgrade(const vector<int>& posts, const vector<int>& trains)

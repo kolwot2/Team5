@@ -39,15 +39,15 @@ void Graph::SetVertexCoordinates(int idx, Point coordinates)
 	vertexes[idx].pos = coordinates;
 }
 
-std::unordered_map<int, std::unordered_map<int, int>> Graph::FloydWarshall() {
+std::unordered_map<int, std::unordered_map<int, int>> Graph::FloydWarshall() const {
 	std::unordered_map<int, std::unordered_map<int, int>> result;
 	for (const auto& [i, vertex_i] : vertexes) {
 		for (const auto& [j, vertex_j] : vertexes) {
 			if (i == j) {
 				result[i][i] = 0;
 			}
-			else if (edges[i].find(j) != edges[i].end()) {
-				result[i][j] = edges[i][j]->length;
+			else if (edges.at(i).find(j) != edges.at(i).end()) {
+				result[i][j] = edges.at(i).at(j)->length;
 			}
 			else {
 				result[i][j] = INT_MAX;
@@ -66,7 +66,7 @@ std::unordered_map<int, std::unordered_map<int, int>> Graph::FloydWarshall() {
 	return result;
 }
 
-std::vector<int> Graph::Dijkstra(int start_idx, int end_idx)
+std::vector<int> Graph::Dijkstra(int start_idx, int end_idx) const
 {
 	const int INF = INT_MAX;
 	std::unordered_map<int, std::pair<int, int>> idx_to_dist_prev;
@@ -81,7 +81,7 @@ std::vector<int> Graph::Dijkstra(int start_idx, int end_idx)
 		auto [current_dist, current_idx] = *distances.begin();
 		distances.erase(distances.begin());
 
-		for (const auto& [idx, edge] : edges[current_idx]) {
+		for (const auto& [idx, edge] : edges.at(current_idx)) {
 			if (int dist = current_dist + edge->length;
 				dist < idx_to_dist_prev[idx].first) {
 				distances.erase({ idx_to_dist_prev[idx].first, idx });

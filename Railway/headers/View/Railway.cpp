@@ -42,7 +42,7 @@ void Railway::start() {
 	auto make_turn = [&controller]() {
 		while (true) {
 			controller.MakeTurn();
-			std::this_thread::sleep_for(std::chrono::milliseconds(500));
+			//std::this_thread::sleep_for(std::chrono::milliseconds(500));
 		}
 	};
 

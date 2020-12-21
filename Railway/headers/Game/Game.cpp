@@ -76,3 +76,11 @@ std::string Game::GetPostInfo(const int& post_index) const {
 	}
 	return post_info;
 }
+
+PostType Game::GetPostType(int idx) const
+{
+	if (idx_to_post.find(idx) != idx_to_post.end()) {
+		return idx_to_post.at(idx)->type;
+	}
+	return PostType::DEFAULT;
+}
