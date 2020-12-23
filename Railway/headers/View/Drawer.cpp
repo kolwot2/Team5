@@ -20,6 +20,8 @@ Drawer::Drawer() {
 	std::unique_ptr<sf::Texture> default_texture(new sf::Texture);
 	default_texture->loadFromFile("textures/default.png");
 	textures["default"] = std::move(default_texture);
+
+	label_font.loadFromFile("fonts\\jai.ttf");
 }
 
 const std::vector<std::pair<sf::Sprite, int>>& Drawer::GetPostSprites() {
@@ -69,12 +71,19 @@ void Drawer::InitRenderObjects(const Game &game) {
 		train_sprite.setTexture(*textures["train"]);
 		trains_sprites.push_back({train_sprite, train.idx});
 	}
+
+	post_label.setFont(label_font);
+	post_label.setCharacterSize(label_size);
+
+	rating_label.setFont(label_font);
+	rating_label.setCharacterSize(label_size);
 }
 
 void Drawer::DrawObjects(sf::RenderWindow &window) {
 	for (auto &edge : edges) {
 		window.draw(&edge[0], edge.size(), sf::Lines);
 	}
+
 	for (const auto &post : posts_sprites) {
 		window.draw(post.first);
 	}
@@ -108,13 +117,18 @@ void Drawer::ScaleObjects(const float &scale_coeff) {
 	}
 }
 
-void Drawer::PrintPostInfo(sf::RenderWindow &window, const std::string &post_info, const sf::Font &font) {
-	sf::Text info_label;
-	info_label.setString(post_info);
-	info_label.setFont(font);
-	info_label.setCharacterSize(18);
-	window.draw(info_label);
+void Drawer::PrintPostInfo(sf::RenderWindow &window, const std::string &post_info) {
+	post_label.setString(post_info);
+	window.draw(post_label);
 }
+
+void Drawer::PrintRating(sf::RenderWindow &window, const int &rating) {
+	rating_label.setString("rating: " + std::to_string(rating));
+	rating_label.setPosition(sf::Vector2f((window.getSize().x - rating_label.getLocalBounds().width) / 2.0f, 0));
+	window.draw(rating_label);
+}
+
+
 
 void Drawer::UpdateTrainSpriteState(const Game &game) {
 	const auto &trains = game.GetPlayer().trains;

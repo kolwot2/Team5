@@ -30,9 +30,6 @@ void Railway::start() {
 	
 	Drawer drawer;
 	drawer.InitRenderObjects(game);
-	
-	sf::Font label_font;
-	label_font.loadFromFile("fonts\\jai.ttf");
 
 	FocusOnGraph(camera, graph);
 
@@ -81,7 +78,8 @@ void Railway::start() {
 		mouse_tracker.GetMousePos(window);
 
 		window.setView(window.getDefaultView());
-		drawer.PrintPostInfo(window, game.GetPostInfo(mouse_tracker.CheckMouseOnPost(drawer.GetPostSprites())), label_font);
+		drawer.PrintPostInfo(window, game.GetPostInfo(mouse_tracker.CheckMouseOnPost(drawer.GetPostSprites())));
+		drawer.PrintRating(window, game.GetPlayer().rating);
 		window.display();
 	}
 }
