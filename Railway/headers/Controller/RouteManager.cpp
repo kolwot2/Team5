@@ -4,8 +4,8 @@ RouteManager::RouteManager(const Game& game)
 	:idx_to_edge(game.GetGraph().GetIndices()),
 	indices_to_distances(game.GetGraph().FloydWarshall())
 {
-	int home_town_idx = game.GetPlayer().GetHomeTown().point_idx;
-	for (const auto& train : game.GetPlayer().GetTrains()) {
+	int home_town_idx = game.GetPlayer().home_town.point_idx;
+	for (const auto& train : game.GetPlayer().trains) {
 		train_to_route[train.idx].train_position.line_idx = train.line_idx;
 		train_to_route[train.idx].train_position.position = train.position;
 	}
@@ -57,7 +57,7 @@ std::vector<MoveRequest> RouteManager::MakeMoves(const Game& game)
 			route.route_nodes.pop_front();
 		}
 		if (route.route_nodes.empty()) {
-			const auto& home_town = game.GetPlayer().GetHomeTown();
+			const auto& home_town = game.GetPlayer().home_town;
 			CreateRoute(train_idx, home_town.product / home_town.population, game.GetPosts());
 		}
 
@@ -93,7 +93,7 @@ void RouteManager::CreateRoute(int train_idx, int max_turns, const PostMap& idx_
 	auto way = market_graph.Dijkstra(start_idx, dest);
 	const auto edges = market_graph.GetEdges();
 
-	for (size_t i = 0, from = start_idx, to; i < way.size(); ++i, from = to) {
+	for (int i = 0, from = start_idx, to; i < way.size(); ++i, from = to) {
 		to = way[i];
 		int edge_idx = edges.at(from).at(to)->index;
 		int speed = edges.at(from).at(to)->is_reversed ? -1 : 1;

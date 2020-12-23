@@ -28,25 +28,22 @@ struct Edge
 	bool is_reversed;
 };
 
-using Edg = std::unordered_map <int, std::unordered_map <int, std::shared_ptr<Edge>>>;
+using EdgeByVertexes = std::unordered_map <int, std::unordered_map <int, std::shared_ptr<Edge>>>;
+using EdgeByIndex = std::unordered_map<int, std::shared_ptr<Edge>>;
 
 class Graph
 {
-	Edg edges;
-	std::unordered_map<int, std::shared_ptr<Edge>> idx_to_edge;
+	EdgeByVertexes edges;
+	EdgeByIndex idx_to_edge;
 	std::unordered_map <int, Vertex> vertexes;
 
 public:
 	void AddEdge(std::shared_ptr<Edge>);
 	void AddVertex(const Vertex&);
-	const Edg& GetEdges() const;
-	const std::unordered_map<int, std::shared_ptr<Edge>>& GetIndices() const;
-	std::unordered_map <int, Vertex>& GetVertexes();
+	const EdgeByVertexes& GetEdges() const;
+	const EdgeByIndex& GetIndices() const;
 	const std::unordered_map <int, Vertex>& GetVertexes() const;
 	void SetVertexCoordinates(int, Point);
 	std::unordered_map<int, std::unordered_map<int, int>> FloydWarshall() const;
 	std::vector<int> Dijkstra(int, int) const;
-	int GetVertexFromPosition(int, int);
 };
-
-void PlaceGraph(Graph &,const float&, const float&, const float&, const float&);

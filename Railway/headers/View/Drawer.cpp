@@ -31,7 +31,7 @@ void Drawer::InitRenderObjects(const Game &game) {
 	const auto &idx_to_post = game.GetPosts();
 	const auto &vertexes = graph.GetVertexes();
 	const auto &edges = graph.GetEdges();
-	const auto &trains = game.GetPlayer().GetTrains();
+	const auto &trains = game.GetPlayer().trains;
 	for (const auto &vertex_pair : vertexes) {
 		const auto &vertex = vertex_pair.second;
 		if (idx_to_post.find(vertex.index) != idx_to_post.end()) {
@@ -117,7 +117,7 @@ void Drawer::PrintPostInfo(sf::RenderWindow &window, const std::string &post_inf
 }
 
 void Drawer::UpdateTrainSpriteState(const Game &game) {
-	const auto &trains = game.GetPlayer().GetTrains();
+	const auto &trains = game.GetPlayer().trains;
 	const auto &idx_to_edge = game.GetGraph().GetIndices();
 	const auto &vertecies = game.GetGraph().GetVertexes();
 	for (auto &[train_sprite, train_index] : trains_sprites) {
