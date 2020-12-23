@@ -56,18 +56,19 @@ void Railway::start() {
 				camera.zoom(1 - event.mouseWheel.delta / 30.0);
 				drawer.ScaleObjects(1 - event.mouseWheel.delta / 30.0);
 			}
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
-				camera.move(-camera_config.camera_speed, 0.f);
-			}
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
-				camera.move(camera_config.camera_speed, 0.f);
-			}
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
-				camera.move(0.f, -camera_config.camera_speed);
-			}
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
-				camera.move(0.f, camera_config.camera_speed);
-			}
+		}
+
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
+			camera.move(-camera_config.camera_speed, 0.f);
+		}
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
+			camera.move(camera_config.camera_speed, 0.f);
+		}
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
+			camera.move(0.f, -camera_config.camera_speed);
+		}
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
+			camera.move(0.f, camera_config.camera_speed);
 		}
 
 		window.clear();
