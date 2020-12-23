@@ -35,14 +35,15 @@ void Railway::start() {
 
 	MouseTracker mouse_tracker;
 
-	auto make_turn = [&controller]() {
-		while (true) {
+	std::promise<void> stop;
+	auto turn_processing = [&controller](std::future<void> stop) {
+		auto period = std::chrono::microseconds(0);
+		while (stop.wait_for(period) != std::future_status::ready) {
 			controller.MakeTurn();
 			//std::this_thread::sleep_for(std::chrono::milliseconds(500));
 		}
 	};
-
-	auto async_turn = std::async(make_turn);
+	std::thread(turn_processing, stop.get_future()).detach();
 
 	while (window.isOpen())
 	{
@@ -50,7 +51,9 @@ void Railway::start() {
 		while (window.pollEvent(event))
 		{
 			if (event.type == sf::Event::Closed) {
-				exit(0);
+				stop.set_value();
+				//exit(0);
+				return;
 			}
 			if (event.type == sf::Event::MouseWheelMoved) {
 				camera.zoom(1 - event.mouseWheel.delta / 30.0);
