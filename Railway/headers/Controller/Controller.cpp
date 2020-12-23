@@ -18,6 +18,7 @@ Controller::Controller()
 
 	connection.send(ActionMessage{ Action::MAP, JsonWriter::WriteMapLayer(1) });
 	auto map_layer1_response = connection.recieve();
+	std::cout << map_layer1_response.data << std::endl;
 	auto& idx_to_post = game.GetPosts();
 	idx_to_post = JsonParser::ParsePosts(map_layer1_response.data);
 
@@ -28,6 +29,9 @@ Controller::Controller()
 		graph.SetVertexCoordinates(i.first, i.second);
 	}
 	route_manager = std::make_unique<RouteManager>(game);
+
+	connection.send(ActionMessage{ Action::UPGRADE, JsonWriter::WriteUpgrade({}, {1}) });
+	auto msg = connection.recieve();
 }
 
 Controller::~Controller()
@@ -47,6 +51,7 @@ void Controller::MakeTurn()
 	UpdateGame();
 	auto moves = route_manager->MakeMoves(game);
 	SendMoveRequests(moves);
+	std::cout << i++ << std::endl;
 	EndTurn();
 
 	/*auto end = std::chrono::system_clock::now();
@@ -72,7 +77,6 @@ void Controller::SendMoveRequests(const std::vector<MoveRequest>& moves)
 	for (const auto& request : moves) {
 		connection.send(ActionMessage{ Action::MOVE, JsonWriter::WriteMove(request) });
 		auto msg = connection.recieve();
-		std::cout << static_cast<int>(msg.result) << std::endl;
 	}
 }
 

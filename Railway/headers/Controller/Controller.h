@@ -17,7 +17,7 @@ private:
 	void UpdateGame();
 	void SendMoveRequests(const std::vector<MoveRequest>&);
 	void EndTurn();
-
+	int i = 1;
 	Game game;
 	ServerConnection connection;
 	std::unique_ptr<RouteManager> route_manager;

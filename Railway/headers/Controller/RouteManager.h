@@ -15,6 +15,7 @@ struct RouteNode {
 	int line_idx;
 	int turns_left;
 	int speed;
+	bool is_sended;
 };
 
 using Route = std::deque<RouteNode>;
@@ -33,8 +34,9 @@ public:
 	std::vector<MoveRequest> MakeMoves(const Game&);
 private:
 	void CreateRoute(int, int, const PostMap&);
-	int CalculateDestination(int, int, const PostMap&);
+	int CalculateDestination(int, int, int, const PostMap&);
 	bool IsDestinated(int);
+	void UpdatePosition(int, const RouteNode&);
 
 	Graph market_graph, storage_graph;
 	const std::unordered_map<int, std::shared_ptr<Edge>>& idx_to_edge;

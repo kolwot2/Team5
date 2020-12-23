@@ -1,10 +1,10 @@
 #include "RouteManager.h"
+#include <iostream>
 
 RouteManager::RouteManager(const Game& game)
 	:idx_to_edge(game.GetGraph().GetIndices()),
 	indices_to_distances(game.GetGraph().FloydWarshall())
 {
-	int home_town_idx = game.GetPlayer().home_town.point_idx;
 	for (const auto& train : game.GetPlayer().trains) {
 		train_to_route[train.idx].train_position.line_idx = train.line_idx;
 		train_to_route[train.idx].train_position.position = train.position;
@@ -55,17 +55,27 @@ std::vector<MoveRequest> RouteManager::MakeMoves(const Game& game)
 	for (auto& [train_idx, route] : train_to_route) {
 		if (!route.route_nodes.empty() && route.route_nodes.front().turns_left == 0) {
 			route.route_nodes.pop_front();
+			if (!route.route_nodes.empty()) {
+				UpdatePosition(train_idx, route.route_nodes.front());
+			}
+			else {
+				route.destination = 0;
+			}
 		}
 		if (route.route_nodes.empty()) {
 			const auto& home_town = game.GetPlayer().home_town;
-			CreateRoute(train_idx, home_town.product / home_town.population, game.GetPosts());
+			CreateRoute(train_idx, home_town.product / (home_town.population * 2), game.GetPosts());
 		}
 
 		if (route.waiting_for == 0) {
 			--route.route_nodes.front().turns_left;
-			moves.emplace_back(
-				route.route_nodes.front().line_idx, route.route_nodes.front().speed, train_idx
-			);
+			route.train_position.position += route.route_nodes.front().speed;
+			if (!route.route_nodes.front().is_sended) {
+				moves.emplace_back(
+					route.route_nodes.front().line_idx, route.route_nodes.front().speed, train_idx
+				);
+				route.route_nodes.front().is_sended = true;
+			}
 		}
 		else {
 			--route.waiting_for;
@@ -77,7 +87,7 @@ std::vector<MoveRequest> RouteManager::MakeMoves(const Game& game)
 
 void RouteManager::CreateRoute(int train_idx, int max_turns, const PostMap& idx_to_post)
 {
-	TrainPosition train_position = train_to_route[train_idx].train_position;
+	TrainPosition& train_position = train_to_route[train_idx].train_position;
 	auto edge = idx_to_edge.at(train_position.line_idx);
 	int start_idx;
 	if ((!edge->is_reversed && train_position.position == 0)
@@ -88,7 +98,7 @@ void RouteManager::CreateRoute(int train_idx, int max_turns, const PostMap& idx_
 		start_idx = edge->to;
 	}
 
-	auto dest = CalculateDestination(start_idx, max_turns, idx_to_post);
+	auto dest = CalculateDestination(start_idx, max_turns, 80, idx_to_post);
 	train_to_route[train_idx].destination = dest;
 	auto way = market_graph.Dijkstra(start_idx, dest);
 	const auto edges = market_graph.GetEdges();
@@ -97,36 +107,42 @@ void RouteManager::CreateRoute(int train_idx, int max_turns, const PostMap& idx_
 		to = way[i];
 		int edge_idx = edges.at(from).at(to)->index;
 		int speed = edges.at(from).at(to)->is_reversed ? -1 : 1;
-		auto node = RouteNode{ edge_idx , idx_to_edge.at(edge_idx)->length, speed };
+		auto node = RouteNode{ edge_idx , idx_to_edge.at(edge_idx)->length, speed, false };
 		train_to_route[train_idx].route_nodes.push_back(node);
 	}
 
 	auto& route = train_to_route[train_idx].route_nodes;
 	for (size_t i = route.size() - 1; i != SIZE_MAX; --i) {
 		auto reversed_node = RouteNode{
-			route[i].line_idx, route[i].turns_left, -route[i].speed
+			route[i].line_idx, route[i].turns_left, -route[i].speed, false
 		};
 		route.push_back(reversed_node);
 	}
+	UpdatePosition(train_idx, route.front());
 }
 
-int RouteManager::CalculateDestination(int start_idx, int max_turs, const PostMap& idx_to_post)
+int RouteManager::CalculateDestination(int start_idx, int max_turs, int capacity, const PostMap& idx_to_post)
 {
-	std::pair<double, int> priority{ 0,0 };
-	for (const auto& [idx, post] : idx_to_post) {
-		if (!IsDestinated(idx)
-			&& indices_to_distances[start_idx][idx] * 2 < max_turs 
-			&& post->type == PostType::MARKET) {
+	int max_idx = -1, length = INT_MAX, max_product = 0;
+
+	for (const auto& [cur_idx, post] : idx_to_post) {
+		if (post->type == PostType::MARKET && !IsDestinated(cur_idx) &&
+			indices_to_distances[start_idx][cur_idx] * 2 < max_turs) {
 			auto market = std::dynamic_pointer_cast<Market>(post);
-			double current_priority = static_cast<double>(market->product) /
-				indices_to_distances[start_idx][idx];
-			if (current_priority > priority.first) {
-				priority.first = current_priority;
-				priority.second = idx;
+			int current_product = std::min(capacity, market->product);
+			if (current_product > max_product || (current_product == max_product &&
+				indices_to_distances[start_idx][cur_idx] < length)) {
+				max_idx = cur_idx;
+				length = indices_to_distances[start_idx][cur_idx];
+				max_product = current_product;
 			}
 		}
 	}
-	return priority.second;
+	if (max_idx == -1) {
+		return CalculateDestination(start_idx, max_turs * 2, capacity, idx_to_post);
+	}
+
+	return max_idx;
 }
 
 bool RouteManager::IsDestinated(int idx)
@@ -137,4 +153,11 @@ bool RouteManager::IsDestinated(int idx)
 		}
 	}
 	return false;
+}
+
+void RouteManager::UpdatePosition(int train_idx, const RouteNode& node)
+{
+	train_to_route[train_idx].train_position.line_idx = node.line_idx;
+	train_to_route[train_idx].train_position.position =
+		node.speed == 1 ? 0 : idx_to_edge.at(node.line_idx)->length;
 }
