@@ -1,7 +1,8 @@
 #include "ServerConnection.h"
 #include <iostream>
 
-ServerConnection::ServerConnection() {
+ServerConnection::ServerConnection()
+{
 	sf::Socket::Status status = socket.connect("wgforge-srv.wargaming.net", 443);
 	if (status != sf::Socket::Done) {
 		std::cout << "Couldn't connect to the server";
@@ -39,5 +40,6 @@ ResposeMessage ServerConnection::recieve() {
 	}
 	delete [] data;
 	ResposeMessage response((Result)type, str_data);
+
 	return response;
 }

@@ -3,6 +3,7 @@
 #include "../JsonUtils/JsonWriter.h"
 #include <chrono>
 #include <memory>
+#include <sstream>
 
 Controller::Controller()
 {
@@ -28,6 +29,9 @@ Controller::Controller()
 		graph.SetVertexCoordinates(i.first, i.second);
 	}
 	route_manager = std::make_unique<RouteManager>(game);
+
+	connection.send(ActionMessage{ Action::UPGRADE, JsonWriter::WriteUpgrade({}, {1}) });
+	auto msg = connection.recieve();
 }
 
 Controller::~Controller()
@@ -42,16 +46,20 @@ const Game& Controller::GetGame()
 
 void Controller::MakeTurn()
 {
-	//auto start = std::chrono::system_clock::now();
-
+	auto start = std::chrono::steady_clock::now();
 	UpdateGame();
 	auto moves = route_manager->MakeMoves(game);
 	SendMoveRequests(moves);
 	EndTurn();
+	auto end = std::chrono::steady_clock::now();
+	std::chrono::duration<double> elapsed_seconds = end - start;
+	std::stringstream ss;
+	ss << "Turn " << GetTurnNumber() << ": " << elapsed_seconds.count() << "\n";
+}
 
-	/*auto end = std::chrono::system_clock::now();
-	std::chrono::duration<double> elapsed = end - start;
-	std::cout << elapsed.count() << std::endl;*/
+int Controller::GetTurnNumber() const
+{
+	return turn_number;
 }
 
 void Controller::UpdateGame()
@@ -72,7 +80,6 @@ void Controller::SendMoveRequests(const std::vector<MoveRequest>& moves)
 	for (const auto& request : moves) {
 		connection.send(ActionMessage{ Action::MOVE, JsonWriter::WriteMove(request) });
 		auto msg = connection.recieve();
-		std::cout << static_cast<int>(msg.result) << std::endl;
 	}
 }
 
@@ -80,4 +87,5 @@ void Controller::EndTurn()
 {
 	connection.send(ActionMessage{ Action::TURN, "" });
 	auto msg = connection.recieve();
+	++turn_number;
 }
