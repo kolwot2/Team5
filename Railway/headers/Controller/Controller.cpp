@@ -3,6 +3,7 @@
 #include "../JsonUtils/JsonWriter.h"
 #include <chrono>
 #include <memory>
+#include <sstream>
 
 Controller::Controller()
 {
@@ -18,7 +19,6 @@ Controller::Controller()
 
 	connection.send(ActionMessage{ Action::MAP, JsonWriter::WriteMapLayer(1) });
 	auto map_layer1_response = connection.recieve();
-	std::cout << map_layer1_response.data << std::endl;
 	auto& idx_to_post = game.GetPosts();
 	idx_to_post = JsonParser::ParsePosts(map_layer1_response.data);
 
@@ -46,17 +46,20 @@ const Game& Controller::GetGame()
 
 void Controller::MakeTurn()
 {
-	//auto start = std::chrono::system_clock::now();
-
+	auto start = std::chrono::steady_clock::now();
 	UpdateGame();
 	auto moves = route_manager->MakeMoves(game);
 	SendMoveRequests(moves);
-	std::cout << i++ << std::endl;
 	EndTurn();
+	auto end = std::chrono::steady_clock::now();
+	std::chrono::duration<double> elapsed_seconds = end - start;
+	std::stringstream ss;
+	ss << "Turn " << GetTurnNumber() << ": " << elapsed_seconds.count() << "\n";
+}
 
-	/*auto end = std::chrono::system_clock::now();
-	std::chrono::duration<double> elapsed = end - start;
-	std::cout << elapsed.count() << std::endl;*/
+int Controller::GetTurnNumber() const
+{
+	return turn_number;
 }
 
 void Controller::UpdateGame()
@@ -84,4 +87,5 @@ void Controller::EndTurn()
 {
 	connection.send(ActionMessage{ Action::TURN, "" });
 	auto msg = connection.recieve();
+	++turn_number;
 }

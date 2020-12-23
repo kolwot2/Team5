@@ -38,7 +38,6 @@ void Railway::start() {
 
 	MouseTracker mouse_tracker;
 
-	//async make_turn
 	auto make_turn = [&controller]() {
 		while (true) {
 			controller.MakeTurn();
@@ -53,8 +52,9 @@ void Railway::start() {
 		sf::Event event;
 		while (window.pollEvent(event))
 		{
-			if (event.type == sf::Event::Closed)
-				window.close();
+			if (event.type == sf::Event::Closed) {
+				exit(0);
+			}
 			if (event.type == sf::Event::MouseWheelMoved) {
 				camera.zoom(1 - event.mouseWheel.delta / 30.0);
 				drawer.ScaleObjects(1 - event.mouseWheel.delta / 30.0);

@@ -5,26 +5,24 @@
 #include "../Game/Game.h"
 #include <deque>
 #include <set>
-
-struct TrainPosition {
-	int line_idx;
-	int position;
-};
+#include <variant>
 
 struct RouteNode {
-	int line_idx;
+	int from;
+	int to;
 	int turns_left;
-	int speed;
 	bool is_sended;
 };
 
+using Position = std::variant<Vertex, std::shared_ptr<Edge>>;
 using Route = std::deque<RouteNode>;
 
 struct RouteInfo {
 	int destination;
 	int waiting_for;
+	int train_capacity;
 	Route route_nodes;
-	TrainPosition train_position;
+	Position train_position;
 };
 
 class RouteManager
@@ -36,7 +34,6 @@ private:
 	void CreateRoute(int, int, const PostMap&);
 	int CalculateDestination(int, int, int, const PostMap&);
 	bool IsDestinated(int);
-	void UpdatePosition(int, const RouteNode&);
 
 	Graph market_graph, storage_graph;
 	const std::unordered_map<int, std::shared_ptr<Edge>>& idx_to_edge;

@@ -13,11 +13,13 @@ public:
 	~Controller();
 	const Game& GetGame();
 	void MakeTurn();
+	int GetTurnNumber() const;
 private:
 	void UpdateGame();
 	void SendMoveRequests(const std::vector<MoveRequest>&);
 	void EndTurn();
-	int i = 1;
+
+	int turn_number = 1;
 	Game game;
 	ServerConnection connection;
 	std::unique_ptr<RouteManager> route_manager;
