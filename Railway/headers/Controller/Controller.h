@@ -7,6 +7,12 @@
 #include "Upgrade.h"
 #include <queue>
 #include <set>
+#include <mutex>
+
+struct SynchronizedGame {
+	Game& game;
+	std::lock_guard<std::mutex> guard;
+};
 
 class Controller
 {
@@ -14,7 +20,7 @@ public:
 	Controller();
 	void Init();
 	void Disconnect();
-	const Game& GetGame();
+	const SynchronizedGame GetGame();
 	void MakeTurn();
 	int GetTurnNumber() const;
 private:
@@ -34,5 +40,6 @@ private:
 	const int UPGRADE_COEFF = 10;
 	const double RECOURSE_COEFF = 0.9;
 	ige::FileLogger logger;
+	std::mutex game_mutex;
 };
 

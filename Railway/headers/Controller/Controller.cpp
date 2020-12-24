@@ -48,12 +48,12 @@ void Controller::Init()
 void Controller::Disconnect()
 {
 	connection.send(ActionMessage(Action::LOGOUT, ""));
-	auto msg = connection.recieve();
+	//auto msg = connection.recieve();
 }
 
-const Game& Controller::GetGame()
+const SynchronizedGame Controller::GetGame()
 {
-	return game;
+	return { game,std::lock_guard{game_mutex} };
 }
 
 void Controller::MakeTurn()
@@ -87,7 +87,10 @@ void Controller::UpdateGame()
 		LogErrorRecieve(player_response, "PLAYER RESPONSE");
 	}
 	auto& player = game.GetPlayer();
-	player = JsonParser::ParsePlayer(player_response.data);
+	{
+		auto guard = std::lock_guard{ game_mutex };
+		player = JsonParser::ParsePlayer(player_response.data);
+	}
 
 	connection.send(ActionMessage{ Action::MAP, JsonWriter::WriteMapLayer(1) });
 	auto map_layer1_response = connection.recieve();
@@ -95,7 +98,10 @@ void Controller::UpdateGame()
 		LogErrorRecieve(map_layer1_response, "MAP1 RESPONSE");
 	}
 	auto& idx_to_post = game.GetPosts();
-	idx_to_post = JsonParser::ParsePosts(map_layer1_response.data);
+	{
+		auto guard = std::lock_guard{ game_mutex };
+		idx_to_post = JsonParser::ParsePosts(map_layer1_response.data);
+	}
 }
 
 void Controller::SendMoveRequests(const std::vector<MoveRequest>& moves)

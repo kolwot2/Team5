@@ -18,9 +18,6 @@ Railway::Railway(int winWidth, int winHeight)
 void Railway::start() {
 	Controller controller;
 	controller.Init();
-	const auto& game = controller.GetGame();
-	const Graph& graph = game.GetGraph();
-
 	//PlaceGraph(graph, 500.f, 50.f, 0.1f, 500.f);
 
 	sf::RenderWindow window(sf::VideoMode(windowWidth, windowHeight), "Railway");
@@ -30,9 +27,11 @@ void Railway::start() {
 	CameraConfig camera_config;
 	
 	Drawer drawer;
-	drawer.InitRenderObjects(game);
-
-	FocusOnGraph(camera, graph, drawer);
+	{
+		auto sync_game = controller.GetGame();
+		drawer.InitRenderObjects(sync_game.game);
+		FocusOnGraph(camera, sync_game.game.GetGraph(), drawer);
+	}
 
 	MouseTracker mouse_tracker;
 
@@ -76,15 +75,24 @@ void Railway::start() {
 		}
 
 		window.clear();
-		
 		window.setView(camera);
-		drawer.UpdateTrainSpriteState(game);
+
+		{
+			auto sync_game = controller.GetGame();
+			drawer.UpdateTrainSpriteState(sync_game.game);
+		}
+
 		drawer.DrawObjects(window);
 		mouse_tracker.GetMousePos(window);
-
 		window.setView(window.getDefaultView());
-		drawer.PrintPostInfo(window, game.GetPostInfo(mouse_tracker.CheckMouseOnPost(drawer.GetPostSprites())));
-		drawer.PrintRating(window, game.GetPlayer().rating);
+
+		{
+			auto sync_game = controller.GetGame();
+			const auto& game = sync_game.game;
+			drawer.PrintPostInfo(window, game.GetPostInfo(mouse_tracker.CheckMouseOnPost(drawer.GetPostSprites())));
+			drawer.PrintRating(window, game.GetPlayer().rating);
+		}
+
 		window.display();
 	}
 }
