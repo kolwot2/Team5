@@ -66,7 +66,7 @@ void Drawer::InitRenderObjects(const Game &game) {
 		}
 	}
 
-	for (const auto &train : trains) {
+	for (const auto &[idx, train] : trains) {
 		sf::Sprite train_sprite;
 		train_sprite.setTexture(*textures["train"]);
 		trains_sprites.push_back({train_sprite, train.idx});
@@ -135,7 +135,7 @@ void Drawer::UpdateTrainSpriteState(const Game &game) {
 	const auto &idx_to_edge = game.GetGraph().GetIndices();
 	const auto &vertecies = game.GetGraph().GetVertexes();
 	for (auto &[train_sprite, train_index] : trains_sprites) {
-		for (const auto &train : trains) {
+		for (const auto &[idx, train] : trains) {
 			if (train_index == train.idx) {
 				const int &edge_ind = train.line_idx;
 				const auto &edge = *idx_to_edge.at(edge_ind);

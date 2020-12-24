@@ -1,6 +1,6 @@
 #pragma once
 
-#include <vector>
+#include <unordered_map>
 #include <string>
 #include "Train.h"
 #include "Posts.h"
@@ -17,6 +17,6 @@ struct Player
 	std::string name;
 	int rating;
 	Town home_town;
-	std::vector<Train> trains;
+	std::unordered_map<int, Train> trains;
 };
 

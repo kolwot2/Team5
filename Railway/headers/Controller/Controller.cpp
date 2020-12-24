@@ -37,7 +37,7 @@ void Controller::Init()
 	const auto& home = player.home_town;
 	const auto& trains = player.trains;
 	for (size_t i = 2; i <= Upgrade::MAX_LEVEL; ++i) {
-		for (const auto& train : trains) {
+		for (const auto& [idx, train] : trains) {
 			upgrade_queue.emplace(UpgradeType::TRAIN, train.idx, i);
 			break;
 		}
