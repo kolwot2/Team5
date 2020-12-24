@@ -1,0 +1,8 @@
+Log file created
+
+[INFO]: Turn 1: 0.714959 sec
+[ERROR]: TURN RESPONSE
+Error code: 4
+Error message: {
+    "error": "Inappropriate game state: <GameState.FINISHED: 3>"
+}

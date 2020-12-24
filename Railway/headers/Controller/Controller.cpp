@@ -3,6 +3,10 @@
 #include "../JsonUtils/JsonWriter.h"
 #include <chrono>
 #include <memory>
+#include <thread>
+#include <sstream>
+
+Controller::Controller() :logger("logs.txt") {}
 
 void Controller::Init()
 {
@@ -60,10 +64,14 @@ void Controller::MakeTurn()
 	CheckUpgrades();
 	auto moves = route_manager.MakeMoves(game);
 	SendMoveRequests(moves);
+	int current_turn = GetTurnNumber();
 	EndTurn();
 	auto end = std::chrono::steady_clock::now();
 	std::chrono::duration<double> elapsed_seconds = end - start;
-	std::cout << "Turn " << GetTurnNumber() << ": " << elapsed_seconds.count() << "\n";
+	std::stringstream ss;
+	ss << "Turn " << current_turn << ": " << elapsed_seconds.count() << " sec";
+	logger << ige::FileLogger::e_logType::LOG_INFO;
+	logger << ss.str();
 }
 
 int Controller::GetTurnNumber() const
@@ -76,8 +84,7 @@ void Controller::UpdateGame()
 	connection.send(ActionMessage{ Action::PLAYER,"" });
 	auto player_response = connection.recieve();
 	if (player_response.result != Result::OKEY) {
-		std::cout << "ERROR PLAYER RESPONSE" << std::endl
-			<< player_response.data << std::endl;
+		LogErrorRecieve(player_response, "PLAYER RESPONSE");
 	}
 	auto& player = game.GetPlayer();
 	player = JsonParser::ParsePlayer(player_response.data);
@@ -85,8 +92,7 @@ void Controller::UpdateGame()
 	connection.send(ActionMessage{ Action::MAP, JsonWriter::WriteMapLayer(1) });
 	auto map_layer1_response = connection.recieve();
 	if (map_layer1_response.result != Result::OKEY) {
-		std::cout << "ERROR MAP1 RESPONSE" << std::endl
-			<< map_layer1_response.data << std::endl;
+		LogErrorRecieve(map_layer1_response, "MAP1 RESPONSE");
 	}
 	auto& idx_to_post = game.GetPosts();
 	idx_to_post = JsonParser::ParsePosts(map_layer1_response.data);
@@ -98,8 +104,7 @@ void Controller::SendMoveRequests(const std::vector<MoveRequest>& moves)
 		connection.send(ActionMessage{ Action::MOVE, JsonWriter::WriteMove(request) });
 		auto msg = connection.recieve();
 		if (msg.result != Result::OKEY) {
-			std::cout << "ERROR MOVE RESPONSE" << std::endl
-				<< msg.data << std::endl;
+			LogErrorRecieve(msg, "MOVE RESPONSE");
 		}
 	}
 }
@@ -114,8 +119,7 @@ void Controller::SendUpgradeRequest(Upgrade upgrade)
 	}
 	auto msg = connection.recieve();
 	if (msg.result != Result::OKEY) {
-		std::cout << "ERROR UPGRADE RESPONSE" << std::endl
-			<< msg.data << std::endl;
+		LogErrorRecieve(msg, "UPGRADE RESPONSE");
 	}
 }
 
@@ -124,8 +128,7 @@ void Controller::EndTurn()
 	connection.send(ActionMessage{ Action::TURN, "" });
 	auto msg = connection.recieve();
 	if (msg.result != Result::OKEY) {
-		std::cout << "ERROR TURN RESPONSE" << std::endl
-			<< msg.data << std::endl;
+		LogErrorRecieve(msg, "TURN RESPONSE");
 	}
 	++turn_number;
 }
@@ -138,7 +141,7 @@ void Controller::CheckUpgrades()
 		if (game.GetPlayer().home_town.armor - UPGRADE_COEFF
 			>= UpradePrice(upgrade.type, upgrade.level)) {
 			SendUpgradeRequest(upgrade);
-				upgrade_queue.pop();
+			upgrade_queue.pop();
 		}
 	}
 }
@@ -149,4 +152,13 @@ void Controller::CheckNeededRecourse()
 		game.GetPlayer().home_town.product_capacity * RECOURSE_COEFF ?
 		GoodsType::ARMOR : GoodsType::PRODUCT;
 	route_manager.SetNeededRecourse(needed_type);
+}
+
+void Controller::LogErrorRecieve(const ResposeMessage& response, const std::string& str)
+{
+	std::stringstream ss;
+	ss << str << '\n' << "Error code: " << static_cast<int>(response.result) << '\n' 
+		<< "Error message: " << response.data;
+	logger << ige::FileLogger::e_logType::LOG_ERROR;
+	logger << ss.str();
 }

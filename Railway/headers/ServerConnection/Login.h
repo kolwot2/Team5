@@ -5,5 +5,5 @@
 struct Login {
     std::string name = "SVM1";
     std::optional<std::string> parrword = "qwerty123", game;
-    std::optional<int> num_turns = 1000, num_players;
+    std::optional<int> num_turns = 500, num_players;
 };
