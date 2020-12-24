@@ -32,7 +32,7 @@ void Railway::start() {
 	Drawer drawer;
 	drawer.InitRenderObjects(game);
 
-	FocusOnGraph(camera, graph);
+	FocusOnGraph(camera, graph, drawer);
 
 	MouseTracker mouse_tracker;
 

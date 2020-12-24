@@ -1,6 +1,6 @@
 #include "Camera.h"
 
-void FocusOnGraph(sf::View& camera, const Graph& graph) {
+void FocusOnGraph(sf::View& camera, const Graph& graph, Drawer &drawer) {
 	const auto& vertexes = graph.GetVertexes();
 	float min_x, min_y, max_x, max_y;
  	const Vertex& first_vertex = (*vertexes.begin()).second;
@@ -18,4 +18,7 @@ void FocusOnGraph(sf::View& camera, const Graph& graph) {
 	camera.setCenter(center_x, center_y);
 	camera.zoom(std::max(std::abs(max_y - min_y + 10.0f) / camera.getSize().y, 
 		std::abs(max_x - min_x + 10.0f) / camera.getSize().x));
+	drawer.ScaleObjects(std::max(std::abs(max_y - min_y + 10.0f) / camera.getSize().y,
+		std::abs(max_x - min_x + 10.0f) / camera.getSize().x) * 0.2);
+
 }
