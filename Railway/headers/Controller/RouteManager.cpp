@@ -8,10 +8,10 @@ void RouteManager::Init(const Game& game)
 	const auto& vertexes = graph.GetVertexes();
 	const auto& edges = graph.GetEdges();
 
-	for (const auto& train : player.trains) {
-		train_to_route[train.idx].train_position = vertexes.at(player.home.idx);
-		train_to_route[train.idx].destination = 0;
-		train_to_route[train.idx].train_capacity = 80;
+	for (const auto& [idx,train] : player.trains) {
+		train_to_route[idx].train_position = vertexes.at(player.home.idx);
+		train_to_route[idx].destination = 0;
+		train_to_route[idx].train_capacity = train.goods_capacity;
 	}
 
 	for (const auto& [idx, vertex] : vertexes) {
