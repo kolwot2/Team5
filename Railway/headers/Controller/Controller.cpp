@@ -3,7 +3,6 @@
 #include "../JsonUtils/JsonWriter.h"
 #include <chrono>
 #include <memory>
-#include <sstream>
 
 void Controller::Init()
 {
@@ -137,9 +136,9 @@ void Controller::CheckUpgrades()
 	{
 		const auto& upgrade = upgrade_queue.front();
 		if (game.GetPlayer().home_town.armor - UPGRADE_COEFF
-			>= UPGRADES_PRICES.at(upgrade.type).at(upgrade.level)) {
+			>= UpradePrice(upgrade.type, upgrade.level)) {
 			SendUpgradeRequest(upgrade);
-			upgrade_queue.pop();
+				upgrade_queue.pop();
 		}
 	}
 }
