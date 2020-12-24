@@ -47,7 +47,7 @@ Player JsonParser::ParsePlayer(std::string& input) {
 	int rating = doc["rating"].GetInt();
 
 	const auto& trains_item = doc["trains"].GetArray();
-	vector<Train> trains = ParseTrains(trains_item);
+	std::unordered_map<int, Train> trains = ParseTrains(trains_item);
 
 	const auto& town_item = doc["town"].GetObject();
 	auto town_ptr = ParseTown(town_item);
@@ -97,8 +97,8 @@ std::vector<std::pair<int, Point>> JsonParser::ParseCoordinates(std::string& inp
 	return res;
 }
 
-std::vector<Train> JsonParser::ParseTrains(const rapidjson::GenericArray<false, rapidjson::Value>& array) {
-	std::vector<Train> trains;
+std::unordered_map<int, Train> JsonParser::ParseTrains(const rapidjson::GenericArray<false, rapidjson::Value>& array) {
+	std::unordered_map<int, Train> trains;
 	trains.reserve(array.Size());
 	for (const auto& item : array) {
 		Train train;
@@ -122,7 +122,7 @@ std::vector<Train> JsonParser::ParseTrains(const rapidjson::GenericArray<false, 
 		train.player_idx = item["player_idx"].GetString();
 		train.position = item["position"].GetInt();
 		train.speed = item["speed"].GetInt();
-		trains.push_back(train);
+		trains[train.idx] = train;
 	}
 	return trains;
 }
