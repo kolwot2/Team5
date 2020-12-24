@@ -54,32 +54,15 @@ Player JsonParser::ParsePlayer(std::string& input) {
 	return Player{ home, move(idx), in_game, move(name), rating, move(*town_ptr), move(trains) };
 }
 
-std::unordered_map<int, std::shared_ptr<Post>> JsonParser::ParsePosts(std::string& input) {
+MapLayer1Response JsonParser::ParseMapLayer1(std::string& input) {
 	using namespace rapidjson;
 	using namespace std;
 	Document doc;
 	doc.Parse(input.c_str());
 
-	unordered_map<int, shared_ptr<Post>> result;
-
 	const auto& posts_array = doc["posts"].GetArray();
-	for (const auto& item : posts_array) {
-		PostType type = static_cast<PostType>(item["type"].GetInt());
-		shared_ptr<Post> post_ptr;
-		switch (type) {
-		case PostType::TOWN:
-			post_ptr = ParseTown(item);
-			break;
-		case PostType::STORAGE:
-			post_ptr = ParseStorage(item);
-			break;
-		case PostType::MARKET:
-			post_ptr = ParseMarket(item);
-			break;
-		}
-		result[post_ptr->point_idx] = move(post_ptr);
-	}
-	return result;
+	const auto& trains_array = doc["trains"].GetArray();
+	return { ParsePosts(posts_array), ParseTrains(trains_array) };
 }
 
 std::vector<std::pair<int, Point>> JsonParser::ParseCoordinates(std::string& input) {
@@ -171,4 +154,26 @@ std::shared_ptr<Storage> JsonParser::ParseStorage(const rapidjson::Value& storag
 	storage->point_idx = storage_item["point_idx"].GetInt();
 	storage->type = PostType::STORAGE;
 	return storage;
+}
+
+std::unordered_map<int, std::shared_ptr<Post>> JsonParser::ParsePosts(const rapidjson::GenericArray<false, rapidjson::Value>& array)
+{
+	std::unordered_map<int, std::shared_ptr<Post>> result;
+	for (const auto& item : array) {
+		PostType type = static_cast<PostType>(item["type"].GetInt());
+		std::shared_ptr<Post> post_ptr;
+		switch (type) {
+		case PostType::TOWN:
+			post_ptr = ParseTown(item);
+			break;
+		case PostType::STORAGE:
+			post_ptr = ParseStorage(item);
+			break;
+		case PostType::MARKET:
+			post_ptr = ParseMarket(item);
+			break;
+		}
+		result[post_ptr->point_idx] = move(post_ptr);
+	}
+	return result;
 }

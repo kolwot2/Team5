@@ -23,7 +23,8 @@ void Controller::Init()
 	connection.send(ActionMessage{ Action::MAP, JsonWriter::WriteMapLayer(1) });
 	auto map_layer1_response = connection.recieve();
 	auto& idx_to_post = game.GetPosts();
-	idx_to_post = JsonParser::ParsePosts(map_layer1_response.data);
+	auto [new_posts, new_trains] = JsonParser::ParseMapLayer1(map_layer1_response.data);
+	idx_to_post = move(new_posts);
 
 	connection.send(ActionMessage{ Action::MAP, JsonWriter::WriteMapLayer(10) });
 	auto map_layer10_response = connection.recieve();
@@ -81,26 +82,20 @@ int Controller::GetTurnNumber() const
 
 void Controller::UpdateGame()
 {
-	connection.send(ActionMessage{ Action::PLAYER,"" });
-	auto player_response = connection.recieve();
-	if (player_response.result != Result::OKEY) {
-		LogErrorRecieve(player_response, "PLAYER RESPONSE");
-	}
-	auto& player = game.GetPlayer();
-	{
-		auto guard = std::lock_guard{ game_mutex };
-		player = JsonParser::ParsePlayer(player_response.data);
-	}
-
 	connection.send(ActionMessage{ Action::MAP, JsonWriter::WriteMapLayer(1) });
 	auto map_layer1_response = connection.recieve();
 	if (map_layer1_response.result != Result::OKEY) {
 		LogErrorRecieve(map_layer1_response, "MAP1 RESPONSE");
 	}
 	auto& idx_to_post = game.GetPosts();
+	auto& trains = game.GetPlayer().trains;
+	auto[new_posts, new_trains] = JsonParser::ParseMapLayer1(map_layer1_response.data);
 	{
 		auto guard = std::lock_guard{ game_mutex };
-		idx_to_post = JsonParser::ParsePosts(map_layer1_response.data);
+		idx_to_post = move(new_posts);
+		for (auto& [idx, train] : trains) {
+			train = new_trains[idx];
+		}
 	}
 }
 
