@@ -1,6 +1,6 @@
 #include "Controller.h"
-#include "../JsonUtils/JsonParser.h"
-#include "../JsonUtils/JsonWriter.h"
+#include "../Utils/JsonParser.h"
+#include "../Utils/JsonWriter.h"
 #include <chrono>
 #include <memory>
 #include <thread>

@@ -1,8 +1,15 @@
 Log file created
 
-[INFO]: Turn 1: 0.714959 sec
-[ERROR]: TURN RESPONSE
-Error code: 4
-Error message: {
-    "error": "Inappropriate game state: <GameState.FINISHED: 3>"
-}
+[INFO]: Turn 1: 0.634564 sec
+[INFO]: Turn 2: 0.48272 sec
+[INFO]: Turn 3: 0.2677 sec
+[INFO]: Turn 4: 0.346791 sec
+[INFO]: Turn 5: 0.656007 sec
+[INFO]: Turn 6: 0.316646 sec
+[INFO]: Turn 7: 0.344906 sec
+[INFO]: Turn 8: 0.598757 sec
+[INFO]: Turn 9: 0.501941 sec
+[INFO]: Turn 10: 0.261613 sec
+[INFO]: Turn 11: 0.377715 sec
+[INFO]: Turn 12: 0.234102 sec
+[INFO]: Turn 13: 0.422429 sec
