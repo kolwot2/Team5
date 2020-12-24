@@ -30,6 +30,8 @@ class RouteManager
 public:
 	RouteManager(const Game&);
 	std::vector<MoveRequest> MakeMoves(const Game&);
+	void UpgradeTrain(int, int);
+	void SetNeededRecourse(GoodsType recourse_type);
 private:
 	void CreateRoute(int, int, const PostMap&);
 	int CalculateDestination(int, int, int, const PostMap&);
@@ -39,5 +41,6 @@ private:
 	const std::unordered_map<int, std::shared_ptr<Edge>>& idx_to_edge;
 	std::unordered_map<int, RouteInfo> train_to_route;
 	std::unordered_map<int, std::unordered_map<int, int>> indices_to_distances;
+	GoodsType needed_recourse = GoodsType::PRODUCT;
 };
 

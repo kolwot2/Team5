@@ -52,7 +52,6 @@ void Railway::start() {
 		{
 			if (event.type == sf::Event::Closed) {
 				stop.set_value();
-				//exit(0);
 				return;
 			}
 			if (event.type == sf::Event::MouseWheelMoved) {

@@ -15,6 +15,7 @@ struct Post {
 	std::vector<Event> events;
 	std::string name;
 	int idx, point_idx;
+	virtual int GetRecourse() const { return 0; }
 	virtual ~Post() = default;
 };
 
@@ -26,8 +27,10 @@ struct Town : public Post {
 
 struct Market : public Post {
 	int product, product_capacity, replenishment;
+	int GetRecourse() const override { return product; }
 };
 
 struct Storage : public Post {
 	int armor, armor_capacity, replenishment;
+	int GetRecourse() const override { return armor; }
 };

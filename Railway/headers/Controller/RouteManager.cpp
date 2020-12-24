@@ -63,7 +63,8 @@ std::vector<MoveRequest> RouteManager::MakeMoves(const Game& game)
 
 		if (route.route_nodes.empty()) {
 			const auto& home_town = game.GetPlayer().home_town;
-			int max_turns = home_town.product / ((home_town.population + 5));
+			int max_turns = home_town.product == 0 ? 
+				INT_MAX : home_town.product / ((home_town.population + 5));
 			CreateRoute(train_idx, max_turns, game.GetPosts());
 		}
 
@@ -86,16 +87,22 @@ std::vector<MoveRequest> RouteManager::MakeMoves(const Game& game)
 	return moves;
 }
 
+void RouteManager::UpgradeTrain(int train_idx, int new_capacity)
+{
+	train_to_route[train_idx].train_capacity = new_capacity;
+}
+
 void RouteManager::CreateRoute(int train_idx, int max_turns, const PostMap& idx_to_post)
 {
 	int start_idx = std::get<Vertex>(train_to_route[train_idx].train_position).index;
-
 	auto dest = CalculateDestination(start_idx, max_turns,
 		train_to_route[train_idx].train_capacity, idx_to_post);
-
 	train_to_route[train_idx].destination = dest;
-	auto way = market_graph.Dijkstra(start_idx, dest);
-	const auto edges = market_graph.GetEdges();
+
+	const auto& needed_graph = needed_recourse == GoodsType::PRODUCT ?
+		market_graph : storage_graph;
+	auto way = needed_graph.Dijkstra(start_idx, dest);
+	const auto edges = needed_graph.GetEdges();
 
 	int from = start_idx;
 	for (size_t i = 0; i < way.size(); from = way[i++]) {
@@ -115,18 +122,19 @@ void RouteManager::CreateRoute(int train_idx, int max_turns, const PostMap& idx_
 
 int RouteManager::CalculateDestination(int start_idx, int max_turs, int capacity, const PostMap& idx_to_post)
 {
-	int max_idx = -1, length = INT_MAX, max_product = 0;
+	int max_idx = -1, length = INT_MAX, max_recourse = 0;
+	PostType needed_post_type = needed_recourse == GoodsType::PRODUCT ?
+		PostType::MARKET : PostType::STORAGE;
 
 	for (const auto& [cur_idx, post] : idx_to_post) {
-		if (post->type == PostType::MARKET && !IsDestinated(cur_idx) &&
+		if (post->type == needed_post_type && !IsDestinated(cur_idx) &&
 			indices_to_distances[start_idx][cur_idx] * 2 < max_turs) {
-			auto market = std::dynamic_pointer_cast<Market>(post);
-			int current_product = std::min(capacity, market->product);
-			if (current_product > max_product || (current_product == max_product &&
+			int current_recourse = std::min(capacity, post->GetRecourse());
+			if (current_recourse > max_recourse || (current_recourse == max_recourse &&
 				indices_to_distances[start_idx][cur_idx] < length)) {
 				max_idx = cur_idx;
 				length = indices_to_distances[start_idx][cur_idx];
-				max_product = current_product;
+				max_recourse = current_recourse;
 			}
 		}
 	}
@@ -145,4 +153,9 @@ bool RouteManager::IsDestinated(int idx)
 		}
 	}
 	return false;
+}
+
+void RouteManager::SetNeededRecourse(GoodsType recourse_type)
+{
+	needed_recourse = recourse_type;
 }
