@@ -17,6 +17,7 @@ Railway::Railway(int winWidth, int winHeight)
 	
 void Railway::start() {
 	Controller controller;
+	controller.Init();
 	const auto& game = controller.GetGame();
 	const Graph& graph = game.GetGraph();
 
@@ -52,6 +53,7 @@ void Railway::start() {
 		{
 			if (event.type == sf::Event::Closed) {
 				stop.set_value();
+				controller.Disconnect();
 				return;
 			}
 			if (event.type == sf::Event::MouseWheelMoved) {

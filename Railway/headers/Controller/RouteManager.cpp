@@ -1,9 +1,7 @@
 #include "RouteManager.h"
 #include <iostream>
 
-RouteManager::RouteManager(const Game& game)
-	:idx_to_edge(game.GetGraph().GetIndices()),
-	indices_to_distances(game.GetGraph().FloydWarshall())
+void RouteManager::Init(const Game& game)
 {
 	const auto& graph = game.GetGraph();
 	const auto& player = game.GetPlayer();
@@ -48,6 +46,8 @@ RouteManager::RouteManager(const Game& game)
 			}
 		}
 	}
+
+	indices_to_distances = game.GetGraph().FloydWarshall();
 }
 
 std::vector<MoveRequest> RouteManager::MakeMoves(const Game& game)

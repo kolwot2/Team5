@@ -5,7 +5,7 @@
 #include <memory>
 #include <sstream>
 
-Controller::Controller()
+void Controller::Init()
 {
 	connection.send(ActionMessage{ Login{} });
 	auto login_response = connection.recieve();
@@ -28,7 +28,8 @@ Controller::Controller()
 	for (const auto& i : coords) {
 		graph.SetVertexCoordinates(i.first, i.second);
 	}
-	route_manager = std::make_unique<RouteManager>(game);
+
+	route_manager.Init(game);
 
 	const auto& home = player.home_town;
 	const auto& trains = player.trains;
@@ -41,9 +42,10 @@ Controller::Controller()
 	}
 }
 
-Controller::~Controller()
+void Controller::Disconnect()
 {
 	connection.send(ActionMessage(Action::LOGOUT, ""));
+	auto msg = connection.recieve();
 }
 
 const Game& Controller::GetGame()
@@ -57,7 +59,7 @@ void Controller::MakeTurn()
 	UpdateGame();
 	CheckNeededRecourse();
 	CheckUpgrades();
-	auto moves = route_manager->MakeMoves(game);
+	auto moves = route_manager.MakeMoves(game);
 	SendMoveRequests(moves);
 	EndTurn();
 	auto end = std::chrono::steady_clock::now();
@@ -147,5 +149,5 @@ void Controller::CheckNeededRecourse()
 	GoodsType needed_type = static_cast<double>(game.GetPlayer().home_town.product) >=
 		game.GetPlayer().home_town.product_capacity * RECOURSE_COEFF ?
 		GoodsType::ARMOR : GoodsType::PRODUCT;
-	route_manager->SetNeededRecourse(needed_type);
+	route_manager.SetNeededRecourse(needed_type);
 }

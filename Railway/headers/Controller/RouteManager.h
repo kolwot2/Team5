@@ -28,7 +28,7 @@ struct RouteInfo {
 class RouteManager
 {
 public:
-	RouteManager(const Game&);
+	void Init(const Game&);
 	std::vector<MoveRequest> MakeMoves(const Game&);
 	void UpgradeTrain(int, int);
 	void SetNeededRecourse(GoodsType recourse_type);
@@ -38,7 +38,6 @@ private:
 	bool IsDestinated(int);
 
 	Graph market_graph, storage_graph;
-	const std::unordered_map<int, std::shared_ptr<Edge>>& idx_to_edge;
 	std::unordered_map<int, RouteInfo> train_to_route;
 	std::unordered_map<int, std::unordered_map<int, int>> indices_to_distances;
 	GoodsType needed_recourse = GoodsType::PRODUCT;

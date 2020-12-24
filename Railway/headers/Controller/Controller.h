@@ -10,8 +10,8 @@
 class Controller
 {
 public:
-	Controller();
-	~Controller();
+	void Init();
+	void Disconnect();
 	const Game& GetGame();
 	void MakeTurn();
 	int GetTurnNumber() const;
@@ -26,7 +26,7 @@ private:
 	int turn_number = 1;
 	Game game;
 	ServerConnection connection;
-	std::unique_ptr<RouteManager> route_manager;
+	RouteManager route_manager;
 	std::queue<Upgrade> upgrade_queue;
 	const int UPGRADE_COEFF = 10;
 	const double RECOURSE_COEFF = 0.9;
