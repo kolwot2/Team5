@@ -19,7 +19,8 @@ using Route = std::deque<RouteNode>;
 
 struct RouteInfo {
 	int destination;
-	int waiting_for;
+	int waiting;
+	int waiting_for_recourse;
 	int train_capacity;
 	Route route_nodes;
 	Position train_position;
@@ -31,15 +32,15 @@ public:
 	void Init(const Game&);
 	std::vector<MoveRequest> MakeMoves(const Game&);
 	void UpgradeTrain(int, int);
-	void SetNeededRecourse(GoodsType recourse_type);
 private:
-	void CreateRoute(int, int, const PostMap&);
-	int CalculateDestination(int, int, int, const PostMap&);
-	bool IsDestinated(int);
+	void CreateRoute(PostType, Graph, const PostMap&);
+	int CalculateDestination(PostType, const PostMap&);
+	void InitPrimaryRoutes(int, int);
+	std::pair<Graph, Graph> GenerateGraphs(const Game&);
 
-	Graph market_graph, storage_graph;
+	int home_idx, market_idx, storage_idx;
+	Route market_route, storage_route;
 	std::unordered_map<int, RouteInfo> train_to_route;
 	std::unordered_map<int, std::unordered_map<int, int>> indices_to_distances;
-	GoodsType needed_recourse = GoodsType::PRODUCT;
 };
 

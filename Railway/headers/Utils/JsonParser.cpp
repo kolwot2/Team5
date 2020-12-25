@@ -141,6 +141,7 @@ std::shared_ptr<Market> JsonParser::ParseMarket(const rapidjson::Value& market_i
 	market->point_idx = market_item["point_idx"].GetInt();
 	market->product = market_item["product"].GetInt();
 	market->product_capacity = market_item["product_capacity"].GetInt();
+	market->replenishment = market_item["replenishment"].GetInt();
 	market->type = PostType::MARKET;
 	return market;
 }
@@ -152,6 +153,7 @@ std::shared_ptr<Storage> JsonParser::ParseStorage(const rapidjson::Value& storag
 	storage->idx = storage_item["idx"].GetInt();
 	storage->name = storage_item["name"].GetString();
 	storage->point_idx = storage_item["point_idx"].GetInt();
+	storage->replenishment = storage_item["replenishment"].GetInt();
 	storage->type = PostType::STORAGE;
 	return storage;
 }

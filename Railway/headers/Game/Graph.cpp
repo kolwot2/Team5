@@ -96,6 +96,7 @@ std::vector<int> Graph::Dijkstra(int start_idx, int end_idx) const
 		current_idx = idx_to_dist_prev[current_idx].second) {
 		way.push_back(current_idx);
 	}
+	way.push_back(start_idx);
 	std::reverse(way.begin(), way.end());
 	return way;
 }

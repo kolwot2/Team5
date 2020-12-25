@@ -29,7 +29,6 @@ private:
 	void SendUpgradeRequest(Upgrade);
 	void EndTurn();
 	void CheckUpgrades();
-	void CheckNeededRecourse();
 	void LogErrorRecieve(const ResposeMessage&, const std::string&);
 
 	int turn_number = 1;
@@ -38,7 +37,6 @@ private:
 	RouteManager route_manager;
 	std::queue<Upgrade> upgrade_queue;
 	const int UPGRADE_COEFF = 10;
-	const double RECOURSE_COEFF = 0.9;
 	ige::FileLogger logger;
 	std::mutex game_mutex;
 };

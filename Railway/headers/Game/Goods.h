@@ -1,7 +1,7 @@
 #pragma once
 
 enum class GoodsType {
-	PRODUCT,
-	ARMOR,
-	NONE
+	PRODUCT = 0,
+	ARMOR = 1,
+	NONE = 2
 };

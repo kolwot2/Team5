@@ -40,9 +40,8 @@ void Controller::Init()
 	for (size_t i = 2; i <= Upgrade::MAX_LEVEL; ++i) {
 		for (const auto& [idx, train] : trains) {
 			upgrade_queue.emplace(UpgradeType::TRAIN, train.idx, i);
-			break;
 		}
-		upgrade_queue.emplace(UpgradeType::TOWN, home.idx, i);
+		//upgrade_queue.emplace(UpgradeType::TOWN, home.idx, i);
 	}
 }
 
@@ -61,7 +60,6 @@ void Controller::MakeTurn()
 {
 	auto start = std::chrono::steady_clock::now();
 	UpdateGame();
-	CheckNeededRecourse();
 	CheckUpgrades();
 	auto moves = route_manager.MakeMoves(game);
 	SendMoveRequests(moves);
@@ -145,14 +143,6 @@ void Controller::CheckUpgrades()
 			upgrade_queue.pop();
 		}
 	}
-}
-
-void Controller::CheckNeededRecourse()
-{
-	GoodsType needed_type = static_cast<double>(game.GetPlayer().home_town.product) >=
-		game.GetPlayer().home_town.product_capacity * RECOURSE_COEFF ?
-		GoodsType::ARMOR : GoodsType::PRODUCT;
-	route_manager.SetNeededRecourse(needed_type);
 }
 
 void Controller::LogErrorRecieve(const ResposeMessage& response, const std::string& str)

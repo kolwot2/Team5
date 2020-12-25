@@ -6,9 +6,9 @@ int UpradePrice(UpgradeType type, int level)
 		switch (level)
 		{
 		case 2:
-			return 40;
+			return 30;
 		case 3:
-			return 80;
+			return 60;
 		default:
 			return -1;
 		}
@@ -17,9 +17,9 @@ int UpradePrice(UpgradeType type, int level)
 		switch (level)
 		{
 		case 2:
-			return 100;
+			return 75;
 		case 3:
-			return 200;
+			return 150;
 		default:
 			return -1;
 		}

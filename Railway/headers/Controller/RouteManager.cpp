@@ -1,19 +1,141 @@
 #include "RouteManager.h"
 #include <iostream>
+#include <algorithm>
 
 void RouteManager::Init(const Game& game)
 {
-	const auto& graph = game.GetGraph();
+	const auto& vertexes = game.GetGraph().GetVertexes();
 	const auto& player = game.GetPlayer();
-	const auto& vertexes = graph.GetVertexes();
-	const auto& edges = graph.GetEdges();
+	home_idx = player.home.idx;
 
-	for (const auto& [idx,train] : player.trains) {
-		train_to_route[idx].train_position = vertexes.at(player.home.idx);
+	for (const auto& [idx, train] : player.trains) {
+		train_to_route[idx].train_position = vertexes.at(home_idx);
 		train_to_route[idx].destination = 0;
 		train_to_route[idx].train_capacity = train.goods_capacity;
 	}
 
+	auto [market_graph, storage_graph] = GenerateGraphs(game);
+	
+	indices_to_distances = game.GetGraph().FloydWarshall();
+
+	market_idx = CalculateDestination(PostType::MARKET, game.GetPosts());
+	storage_idx = CalculateDestination(PostType::STORAGE, game.GetPosts());
+
+	CreateRoute(PostType::STORAGE, std::move(storage_graph), game.GetPosts());
+	CreateRoute(PostType::MARKET, std::move(market_graph), game.GetPosts());
+	auto primary = std::dynamic_pointer_cast<Storage>(game.GetPosts().at(storage_idx));
+	InitPrimaryRoutes(primary->armor_capacity, primary->replenishment);
+}
+
+std::vector<MoveRequest> RouteManager::MakeMoves(const Game& game)
+{
+	std::vector<MoveRequest> moves;
+	const auto& vertexes = game.GetGraph().GetVertexes();
+	for (auto& [train_idx, route] : train_to_route) {
+		if (!route.route_nodes.empty() && route.route_nodes.front().turns_left == 0) {
+			route.train_position = vertexes.at(route.route_nodes.front().to);
+			route.route_nodes.pop_front();
+		}
+
+		if (route.route_nodes.empty()) {
+			route.route_nodes = market_route;
+		}
+
+		if (std::holds_alternative<Vertex>(route.train_position) &&
+			std::get<Vertex>(route.train_position).index == route.destination &&
+			route.waiting_for_recourse != 0) {
+			route.waiting = route.waiting_for_recourse;
+			route.waiting_for_recourse = 0;
+		}
+
+		if (route.waiting == 0) {
+			auto& current_node = route.route_nodes.front();
+			--current_node.turns_left;
+			if (!current_node.is_sended) {
+				const auto& edge = game.GetGraph().GetEdges().at(current_node.from).at(current_node.to);
+				int speed = edge->is_reversed ? -1 : 1;
+				route.train_position = edge;
+				moves.emplace_back(edge->index, speed, train_idx);
+				route.route_nodes.front().is_sended = true;
+			}
+		}
+		else {
+			--route.waiting;
+		}
+	}
+	return moves;
+}
+
+void RouteManager::UpgradeTrain(int train_idx, int new_capacity)
+{
+	train_to_route[train_idx].train_capacity = new_capacity;
+}
+
+void RouteManager::CreateRoute(PostType type, Graph graph, const PostMap& posts)
+{
+	auto& route = type == PostType::MARKET ? market_route : storage_route;
+	auto idx = type == PostType::MARKET ? market_idx : storage_idx;
+
+	auto way_to = graph.Dijkstra(home_idx, idx);
+	auto& edges = graph.GetEdges();
+
+	for (size_t i = 0; i < way_to.size() - 1; ++i) {
+		int from = way_to[i];
+		int to = way_to[i + 1];
+		route.push_back(
+			{ from, to, edges.at(from).at(to)->length, false }
+		);
+	}
+
+	for (size_t i = 0; i < way_to.size() - 1; ++i) {
+		int from = way_to[i];
+		int to = way_to[i + 1];
+		auto prev_edge = edges.at(from).at(to);
+		graph.AddEdge(std::shared_ptr<Edge>(
+			new Edge{ prev_edge->from, prev_edge->to,
+			prev_edge->index, INT_MAX, prev_edge->is_reversed }
+		));
+	}
+	auto way_from = graph.Dijkstra(idx, home_idx);
+
+	for (size_t i = 0; i < way_to.size() - 1; ++i) {
+		int from = way_from[i];
+		int to = way_from[i + 1];
+		route.push_back(
+			{ from, to, edges.at(from).at(to)->length, false }
+		);
+	}
+}
+
+int RouteManager::CalculateDestination(PostType type, const PostMap& posts)
+{
+	int idx = 0, distance = INT_MAX;
+	for (const auto& [post_idx, post] : posts) {
+		if (post->type == type && indices_to_distances[home_idx][post_idx] < distance) {
+			idx = post_idx;
+			distance = indices_to_distances[home_idx][post_idx];
+		}
+	}
+	return idx;
+}
+
+void RouteManager::InitPrimaryRoutes(int capacity, int replenishment)
+{
+	int wait_time = 0;
+	for (auto& [idx, route] : train_to_route) {
+		route.route_nodes = storage_route;
+		route.waiting = wait_time;
+		route.waiting_for_recourse = route.train_capacity / replenishment + 1;
+		route.destination = storage_idx;
+		wait_time += route.waiting_for_recourse + 1;
+	}
+}
+
+std::pair<Graph, Graph> RouteManager::GenerateGraphs(const Game& game)
+{
+	Graph market_graph, storage_graph;
+	const auto& vertexes = game.GetGraph().GetVertexes();
+	const auto& edges = game.GetGraph().GetEdges();
 	for (const auto& [idx, vertex] : vertexes) {
 		switch (game.GetPostType(idx))
 		{
@@ -46,116 +168,10 @@ void RouteManager::Init(const Game& game)
 			}
 		}
 	}
-
-	indices_to_distances = game.GetGraph().FloydWarshall();
+	return { std::move(market_graph), std::move(storage_graph) };
 }
 
-std::vector<MoveRequest> RouteManager::MakeMoves(const Game& game)
-{
-	std::vector<MoveRequest> moves;
-	const auto& vertexes = game.GetGraph().GetVertexes();
-	for (auto& [train_idx, route] : train_to_route) {
-		if (!route.route_nodes.empty() && route.route_nodes.front().turns_left == 0) {
-			route.train_position = vertexes.at(route.route_nodes.front().to);
-			route.destination = 0;
-			route.route_nodes.pop_front();
-		}
 
-		if (route.route_nodes.empty()) {
-			const auto& home_town = game.GetPlayer().home_town;
-			int max_turns = home_town.product == 0 ? 
-				INT_MAX : home_town.product / ((home_town.population + 5));
-			CreateRoute(train_idx, max_turns, game.GetPosts());
-		}
 
-		if (route.waiting_for == 0) {
-			auto& current_node = route.route_nodes.front();
-			--current_node.turns_left;
-			if (!current_node.is_sended) {
-				const auto& edge = game.GetGraph().GetEdges().at(current_node.from).at(current_node.to);
-				int speed = edge->is_reversed ? -1 : 1;
-				route.train_position = edge;
-				moves.emplace_back(edge->index, speed, train_idx);
-				route.route_nodes.front().is_sended = true;
-			}
-		}
-		else {
-			--route.waiting_for;
-		}
-		break;
-	}
-	return moves;
-}
 
-void RouteManager::UpgradeTrain(int train_idx, int new_capacity)
-{
-	train_to_route[train_idx].train_capacity = new_capacity;
-}
 
-void RouteManager::CreateRoute(int train_idx, int max_turns, const PostMap& idx_to_post)
-{
-	int start_idx = std::get<Vertex>(train_to_route[train_idx].train_position).index;
-	auto dest = CalculateDestination(start_idx, max_turns,
-		train_to_route[train_idx].train_capacity, idx_to_post);
-	train_to_route[train_idx].destination = dest;
-
-	const auto& needed_graph = needed_recourse == GoodsType::PRODUCT ?
-		market_graph : storage_graph;
-	auto way = needed_graph.Dijkstra(start_idx, dest);
-	const auto edges = needed_graph.GetEdges();
-
-	int from = start_idx;
-	for (size_t i = 0; i < way.size(); from = way[i++]) {
-		int to = way[i];
-		train_to_route[train_idx].route_nodes.push_back(
-			RouteNode{ from, to, edges.at(from).at(to)->length, false }
-		);
-	}
-
-	for (size_t i = way.size() - 1; i + 1 > 0; --i) {
-		const auto& current = train_to_route[train_idx].route_nodes[i];
-		train_to_route[train_idx].route_nodes.push_back(
-			RouteNode{ current.to, current.from, current.turns_left, false }
-		);
-	}
-}
-
-int RouteManager::CalculateDestination(int start_idx, int max_turs, int capacity, const PostMap& idx_to_post)
-{
-	int max_idx = -1, length = INT_MAX, max_recourse = 0;
-	PostType needed_post_type = needed_recourse == GoodsType::PRODUCT ?
-		PostType::MARKET : PostType::STORAGE;
-
-	for (const auto& [cur_idx, post] : idx_to_post) {
-		if (post->type == needed_post_type && !IsDestinated(cur_idx) &&
-			indices_to_distances[start_idx][cur_idx] * 2 < max_turs) {
-			int current_recourse = std::min(capacity, post->GetRecourse());
-			if (current_recourse > max_recourse || (current_recourse == max_recourse &&
-				indices_to_distances[start_idx][cur_idx] < length)) {
-				max_idx = cur_idx;
-				length = indices_to_distances[start_idx][cur_idx];
-				max_recourse = current_recourse;
-			}
-		}
-	}
-	if (max_idx == -1) {
-		return CalculateDestination(start_idx, max_turs * 2, capacity, idx_to_post);
-	}
-
-	return max_idx;
-}
-
-bool RouteManager::IsDestinated(int idx)
-{
-	for (const auto& [train, route_info] : train_to_route) {
-		if (idx == route_info.destination) {
-			return true;
-		}
-	}
-	return false;
-}
-
-void RouteManager::SetNeededRecourse(GoodsType recourse_type)
-{
-	needed_recourse = recourse_type;
-}
