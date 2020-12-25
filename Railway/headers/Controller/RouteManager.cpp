@@ -23,8 +23,6 @@ void RouteManager::Init(const Game& game)
 
 	CreateRoute(PostType::STORAGE, std::move(storage_graph), game.GetPosts());
 	CreateRoute(PostType::MARKET, std::move(market_graph), game.GetPosts());
-	auto primary = std::dynamic_pointer_cast<Storage>(game.GetPosts().at(storage_idx));
-	InitPrimaryRoutes(primary->armor_capacity, primary->replenishment);
 }
 
 std::vector<MoveRequest> RouteManager::MakeMoves(const Game& game)
@@ -38,14 +36,13 @@ std::vector<MoveRequest> RouteManager::MakeMoves(const Game& game)
 		}
 
 		if (route.route_nodes.empty()) {
-			route.route_nodes = market_route;
+			InitRoute(train_idx, game.GetPosts());
 		}
 
 		if (std::holds_alternative<Vertex>(route.train_position) &&
 			std::get<Vertex>(route.train_position).index == route.destination &&
 			route.waiting_for_recourse != 0) {
-			route.waiting = route.waiting_for_recourse;
-			route.waiting_for_recourse = 0;
+			std::swap(route.waiting, route.waiting_for_recourse);
 		}
 
 		if (route.waiting == 0) {
@@ -125,9 +122,32 @@ void RouteManager::InitPrimaryRoutes(int capacity, int replenishment)
 	for (auto& [idx, route] : train_to_route) {
 		route.route_nodes = storage_route;
 		route.waiting = wait_time;
-		route.waiting_for_recourse = route.train_capacity / replenishment + 1;
+		int current_capacity = wait_time == 0 ?
+			route.train_capacity - capacity : route.train_capacity;
+		route.waiting_for_recourse = current_capacity / replenishment;
 		route.destination = storage_idx;
 		wait_time += route.waiting_for_recourse + 3;
+	}
+}
+
+void RouteManager::InitRoute(int train_idx, const PostMap& posts)
+{
+	if (!primary) {
+		primary = true;
+		auto primary = std::dynamic_pointer_cast<Storage>(posts.at(storage_idx));
+		InitPrimaryRoutes(primary->armor_capacity, primary->replenishment);
+	}
+	else if (!town_upgraded) {
+		town_upgraded = true;
+		auto& route = train_to_route[train_idx];
+		auto dest = std::dynamic_pointer_cast<Storage>(posts.at(storage_idx));
+		route.waiting_for_recourse = (route.train_capacity -dest->armor_capacity)
+			/ dest->replenishment;
+		route.route_nodes = storage_route;
+	}
+	else {
+		auto& route = train_to_route[train_idx];
+		route.route_nodes = market_route;
 	}
 }
 
@@ -170,8 +190,3 @@ std::pair<Graph, Graph> RouteManager::GenerateGraphs(const Game& game)
 	}
 	return { std::move(market_graph), std::move(storage_graph) };
 }
-
-
-
-
-

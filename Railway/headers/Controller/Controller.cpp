@@ -127,16 +127,22 @@ void Controller::EndTurn()
 
 void Controller::CheckUpgrades()
 {
-	std::vector<int> train_upgrades;
+	std::vector<int> train_upgrades, town_upgrade;
 	int current_armor = game.GetPlayer().home_town.armor;
 	for (const auto& [train_idx, train] : game.GetPlayer().trains) {
 		if (train.next_level_price.has_value() && current_armor > train.next_level_price.value() &&
 			IsTrainAtHome(train_idx)) {
 			train_upgrades.push_back(train_idx);
 			current_armor -= train.next_level_price.value();
+			route_manager.UpgradeTrain(train_idx, 80);
 		}
 	}
-	SendUpgradeRequest({}, train_upgrades);
+	if (current_armor > game.GetPlayer().home_town.next_level_price) {
+		town_upgrade.push_back(game.GetPlayer().home.post_idx);
+		current_armor -= game.GetPlayer().home_town.next_level_price;
+	}
+
+	SendUpgradeRequest(town_upgrade, train_upgrades);
 }
 
 bool Controller::IsTrainAtHome(int idx)

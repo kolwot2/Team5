@@ -36,11 +36,12 @@ private:
 	void CreateRoute(PostType, Graph, const PostMap&);
 	int CalculateDestination(PostType, const PostMap&);
 	void InitPrimaryRoutes(int, int);
+	void InitRoute(int, const PostMap&);
 	std::pair<Graph, Graph> GenerateGraphs(const Game&);
 
 	int home_idx, market_idx, storage_idx;
 	Route market_route, storage_route;
 	std::unordered_map<int, RouteInfo> train_to_route;
 	std::unordered_map<int, std::unordered_map<int, int>> indices_to_distances;
+	bool primary = false, town_upgraded = false;
 };
-
