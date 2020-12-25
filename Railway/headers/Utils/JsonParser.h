@@ -10,6 +10,7 @@
 struct MapLayer1Response {
 	std::unordered_map<int, std::shared_ptr<Post>> post;
 	std::unordered_map<int, Train> trains;
+	int rating;
 };
 
 class JsonParser {
@@ -25,4 +26,5 @@ private:
 	static std::shared_ptr<Market> ParseMarket(const rapidjson::Value& market_item);
 	static std::shared_ptr<Storage> ParseStorage(const rapidjson::Value& storage_item);
 	static std::unordered_map<int, std::shared_ptr<Post>> ParsePosts(const rapidjson::GenericArray<false, rapidjson::Value>& array);
+	static std::unordered_map<std::string, int> ParseRatings(const rapidjson::GenericArray<false, rapidjson::Value>& array);
 };

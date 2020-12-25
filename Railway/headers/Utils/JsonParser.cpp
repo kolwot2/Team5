@@ -62,7 +62,11 @@ MapLayer1Response JsonParser::ParseMapLayer1(std::string& input) {
 
 	const auto& posts_array = doc["posts"].GetArray();
 	const auto& trains_array = doc["trains"].GetArray();
-	return { ParsePosts(posts_array), ParseTrains(trains_array) };
+	const auto& ratings_item = doc["ratings"].GetObject();
+	const auto& item = ratings_item.MemberBegin()->value.GetObject();
+	int rating = item["rating"].GetInt();
+
+	return { ParsePosts(posts_array), ParseTrains(trains_array), rating};
 }
 
 std::vector<std::pair<int, Point>> JsonParser::ParseCoordinates(std::string& input) {
@@ -178,4 +182,9 @@ std::unordered_map<int, std::shared_ptr<Post>> JsonParser::ParsePosts(const rapi
 		result[post_ptr->point_idx] = move(post_ptr);
 	}
 	return result;
+}
+
+std::unordered_map<std::string, int> JsonParser::ParseRatings(const rapidjson::GenericArray<false, rapidjson::Value>& array)
+{
+	return std::unordered_map<std::string, int>();
 }

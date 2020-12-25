@@ -23,7 +23,7 @@ void Controller::Init()
 	connection.send(ActionMessage{ Action::MAP, JsonWriter::WriteMapLayer(1) });
 	auto map_layer1_response = connection.recieve();
 	auto& idx_to_post = game.GetPosts();
-	auto [new_posts, new_trains] = JsonParser::ParseMapLayer1(map_layer1_response.data);
+	auto [new_posts, new_trains, ratings] = JsonParser::ParseMapLayer1(map_layer1_response.data);
 	idx_to_post = move(new_posts);
 
 	connection.send(ActionMessage{ Action::MAP, JsonWriter::WriteMapLayer(10) });
@@ -87,13 +87,16 @@ void Controller::UpdateGame()
 	}
 	auto& idx_to_post = game.GetPosts();
 	auto& trains = game.GetPlayer().trains;
-	auto[new_posts, new_trains] = JsonParser::ParseMapLayer1(map_layer1_response.data);
+	auto[new_posts, new_trains, rating] = JsonParser::ParseMapLayer1(map_layer1_response.data);
 	{
 		auto guard = std::lock_guard{ game_mutex };
 		idx_to_post = move(new_posts);
 		for (auto& [idx, train] : trains) {
 			train = new_trains[idx];
 		}
+		auto& player = game.GetPlayer();
+		player.home_town = *std::dynamic_pointer_cast<Town>(idx_to_post[player.home.idx]);
+		player.rating = rating;
 	}
 }
 
