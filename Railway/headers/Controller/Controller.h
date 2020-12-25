@@ -4,7 +4,6 @@
 #include "../ServerConnection/Messages.h"
 #include "../Utils/FileLogger.h"
 #include "RouteManager.h"
-#include "Upgrade.h"
 #include <queue>
 #include <set>
 #include <mutex>
@@ -26,17 +25,16 @@ public:
 private:
 	void UpdateGame();
 	void SendMoveRequests(const std::vector<MoveRequest>&);
-	void SendUpgradeRequest(Upgrade);
+	void SendUpgradeRequest(std::vector<int>, std::vector<int>);
 	void EndTurn();
 	void CheckUpgrades();
+	bool IsTrainAtHome(int);
 	void LogErrorRecieve(const ResposeMessage&, const std::string&);
 
 	int turn_number = 1;
 	Game game;
 	ServerConnection connection;
 	RouteManager route_manager;
-	std::queue<Upgrade> upgrade_queue;
-	const int UPGRADE_COEFF = 10;
 	ige::FileLogger logger;
 	std::mutex game_mutex;
 };

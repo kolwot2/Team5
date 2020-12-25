@@ -127,7 +127,7 @@ void RouteManager::InitPrimaryRoutes(int capacity, int replenishment)
 		route.waiting = wait_time;
 		route.waiting_for_recourse = route.train_capacity / replenishment + 1;
 		route.destination = storage_idx;
-		wait_time += route.waiting_for_recourse + 1;
+		wait_time += route.waiting_for_recourse + 3;
 	}
 }
 

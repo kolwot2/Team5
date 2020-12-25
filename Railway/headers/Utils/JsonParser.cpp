@@ -90,8 +90,6 @@ std::unordered_map<int, Train> JsonParser::ParseTrains(const rapidjson::GenericA
 	for (const auto& item : array) {
 		Train train;
 		train.cooldown = item["cooldown"].GetInt();
-		//train.fuel = item["fuel"].GetInt();
-		//train.fuel_capacity = item["fuel_capacity"].GetInt();
 		train.goods = item["goods"].GetInt();
 		train.goods_capacity = item["goods_capacity"].GetInt();
 		const auto& goods_type_item = item["goods_type"];
@@ -105,10 +103,15 @@ std::unordered_map<int, Train> JsonParser::ParseTrains(const rapidjson::GenericA
 		train.idx = item["idx"].GetInt();
 		train.level = item["level"].GetInt();
 		train.line_idx = item["line_idx"].GetInt();
-		train.next_level_price = item["next_level_price"].GetInt();
 		train.player_idx = item["player_idx"].GetString();
 		train.position = item["position"].GetInt();
 		train.speed = item["speed"].GetInt();
+		if (item["next_level_price"].IsInt()) {
+			train.next_level_price = item["next_level_price"].GetInt();
+		}
+		else {
+			train.next_level_price = std::nullopt;
+		}
 		trains[train.idx] = train;
 	}
 	return trains;

@@ -37,12 +37,6 @@ void Controller::Init()
 
 	const auto& home = player.home_town;
 	const auto& trains = player.trains;
-	for (size_t i = 2; i <= Upgrade::MAX_LEVEL; ++i) {
-		for (const auto& [idx, train] : trains) {
-			upgrade_queue.emplace(UpgradeType::TRAIN, train.idx, i);
-		}
-		//upgrade_queue.emplace(UpgradeType::TOWN, home.idx, i);
-	}
 }
 
 void Controller::Disconnect()
@@ -111,14 +105,10 @@ void Controller::SendMoveRequests(const std::vector<MoveRequest>& moves)
 	}
 }
 
-void Controller::SendUpgradeRequest(Upgrade upgrade)
+void Controller::SendUpgradeRequest(std::vector<int> town_upgrades, std::vector<int> train_upgrades)
 {
-	if (upgrade.type == UpgradeType::TOWN) {
-		connection.send(ActionMessage{ Action::UPGRADE, JsonWriter::WriteUpgrade({upgrade.idx},{}) });
-	}
-	else {
-		connection.send(ActionMessage{ Action::UPGRADE, JsonWriter::WriteUpgrade({},{upgrade.idx}) });
-	}
+	connection.send(ActionMessage{ Action::UPGRADE,
+		JsonWriter::WriteUpgrade(town_upgrades, train_upgrades) });
 	auto msg = connection.recieve();
 	if (msg.result != Result::OKEY) {
 		LogErrorRecieve(msg, "UPGRADE RESPONSE");
@@ -137,15 +127,35 @@ void Controller::EndTurn()
 
 void Controller::CheckUpgrades()
 {
-	if (!upgrade_queue.empty())
-	{
-		const auto& upgrade = upgrade_queue.front();
-		if (game.GetPlayer().home_town.armor - UPGRADE_COEFF
-			>= UpradePrice(upgrade.type, upgrade.level)) {
-			SendUpgradeRequest(upgrade);
-			upgrade_queue.pop();
+	std::vector<int> train_upgrades;
+	int current_armor = game.GetPlayer().home_town.armor;
+	for (const auto& [train_idx, train] : game.GetPlayer().trains) {
+		if (train.next_level_price.has_value() && current_armor > train.next_level_price.value() &&
+			IsTrainAtHome(train_idx)) {
+			train_upgrades.push_back(train_idx);
+			current_armor -= train.next_level_price.value();
 		}
 	}
+	SendUpgradeRequest({}, train_upgrades);
+}
+
+bool Controller::IsTrainAtHome(int idx)
+{
+	const auto& train = game.GetPlayer().trains[idx];
+	const auto& edge = game.GetGraph().GetIndices().at(train.line_idx);
+	if (train.position != 0 && train.position != edge->length) {
+		return false;
+	}
+
+	int vertex_idx = 0;
+	if ((train.position == 0 && !edge->is_reversed) ||
+		(train.position != 0 && edge->is_reversed)) {
+		vertex_idx = edge->from;
+	}
+	else {
+		vertex_idx = edge->to;
+	}
+	return vertex_idx == game.GetPlayer().home.idx;
 }
 
 void Controller::LogErrorRecieve(const ResposeMessage& response, const std::string& str)
