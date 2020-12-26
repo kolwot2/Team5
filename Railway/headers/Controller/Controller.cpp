@@ -72,12 +72,17 @@ int Controller::GetTurnNumber() const
 	return turn_number;
 }
 
+bool Controller::IsGameOver() const
+{
+	return game_over;
+}
+
 void Controller::UpdateGame()
 {
 	connection.send(ActionMessage{ Action::MAP, JsonWriter::WriteMapLayer(1) });
 	auto map_layer1_response = connection.recieve();
 	if (map_layer1_response.result != Result::OKEY) {
-		LogErrorRecieve(map_layer1_response, "MAP1 RESPONSE");
+		CheckResponse(map_layer1_response);
 	}
 	auto& idx_to_post = game.GetPosts();
 	auto& trains = game.GetPlayer().trains;
@@ -100,7 +105,7 @@ void Controller::SendMoveRequests(const std::vector<MoveRequest>& moves)
 		connection.send(ActionMessage{ Action::MOVE, JsonWriter::WriteMove(request) });
 		auto msg = connection.recieve();
 		if (msg.result != Result::OKEY) {
-			LogErrorRecieve(msg, "MOVE RESPONSE");
+			CheckResponse(msg);
 		}
 	}
 }
@@ -111,7 +116,7 @@ void Controller::SendUpgradeRequest(std::vector<int> town_upgrades, std::vector<
 		JsonWriter::WriteUpgrade(town_upgrades, train_upgrades) });
 	auto msg = connection.recieve();
 	if (msg.result != Result::OKEY) {
-		LogErrorRecieve(msg, "UPGRADE RESPONSE");
+		CheckResponse(msg);
 	}
 }
 
@@ -120,7 +125,7 @@ void Controller::EndTurn()
 	connection.send(ActionMessage{ Action::TURN, "" });
 	auto msg = connection.recieve();
 	if (msg.result != Result::OKEY) {
-		LogErrorRecieve(msg, "TURN RESPONSE");
+		CheckResponse(msg);
 	}
 	++turn_number;
 }
@@ -145,6 +150,16 @@ void Controller::CheckUpgrades()
 	SendUpgradeRequest(town_upgrade, train_upgrades);
 }
 
+void Controller::CheckResponse(const ResposeMessage& msg)
+{
+	if (msg.result == Result::INAPPROPRIATE_GAME_STATE) {
+		game_over = true;
+	}
+	else {
+		LogErrorRecieve(msg);
+	}
+}
+
 bool Controller::IsTrainAtHome(int idx)
 {
 	const auto& train = game.GetPlayer().trains[idx];
@@ -164,10 +179,10 @@ bool Controller::IsTrainAtHome(int idx)
 	return vertex_idx == game.GetPlayer().home.idx;
 }
 
-void Controller::LogErrorRecieve(const ResposeMessage& response, const std::string& str)
+void Controller::LogErrorRecieve(const ResposeMessage& response)
 {
 	std::stringstream ss;
-	ss << str << '\n' << "Error code: " << static_cast<int>(response.result) << '\n' 
+	ss  << "Error code: " << static_cast<int>(response.result) << '\n' 
 		<< "Error message: " << response.data;
 	logger << ige::FileLogger::e_logType::LOG_ERROR;
 	logger << ss.str();

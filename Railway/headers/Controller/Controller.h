@@ -22,14 +22,16 @@ public:
 	const SynchronizedGame GetGame();
 	void MakeTurn();
 	int GetTurnNumber() const;
+	bool IsGameOver() const;
 private:
 	void UpdateGame();
 	void SendMoveRequests(const std::vector<MoveRequest>&);
 	void SendUpgradeRequest(std::vector<int>, std::vector<int>);
 	void EndTurn();
 	void CheckUpgrades();
+	void CheckResponse(const ResposeMessage&);
 	bool IsTrainAtHome(int);
-	void LogErrorRecieve(const ResposeMessage&, const std::string&);
+	void LogErrorRecieve(const ResposeMessage&);
 
 	int turn_number = 1;
 	Game game;
@@ -38,5 +40,6 @@ private:
 	ige::FileLogger logger;
 	std::mutex game_mutex;
 	const int UPGRADE_COEFF = 5;
+	bool game_over = false;
 };
 
