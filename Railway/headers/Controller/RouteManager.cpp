@@ -15,7 +15,7 @@ void RouteManager::Init(const Game& game)
 	}
 
 	auto [market_graph, storage_graph] = GenerateGraphs(game);
-	
+
 	indices_to_distances = game.GetGraph().FloydWarshall();
 
 	market_idx = CalculateDestination(PostType::MARKET, game.GetPosts());
@@ -48,6 +48,7 @@ std::vector<MoveRequest> RouteManager::MakeMoves(const Game& game)
 		if (route.waiting == 0) {
 			auto& current_node = route.route_nodes.front();
 			--current_node.turns_left;
+			++route.position;
 			if (!current_node.is_sended) {
 				const auto& edge = game.GetGraph().GetEdges().at(current_node.from).at(current_node.to);
 				int speed = edge->is_reversed ? -1 : 1;
@@ -73,7 +74,9 @@ void RouteManager::CreateRoute(PostType type, Graph graph, const PostMap& posts)
 {
 	auto& route = type == PostType::MARKET ? market_route : storage_route;
 	auto idx = type == PostType::MARKET ? market_idx : storage_idx;
+	int& length = type == PostType::MARKET ? market_route_length : storage_route_length;
 
+	length = 2 * indices_to_distances[home_idx][idx];
 	auto way_to = graph.Dijkstra(home_idx, idx);
 	auto& edges = graph.GetEdges();
 
@@ -127,27 +130,29 @@ void RouteManager::InitPrimaryRoutes(int capacity, int replenishment)
 			route.train_capacity - capacity : route.train_capacity;
 		route.waiting_for_recourse = current_capacity / replenishment;
 		route.destination = storage_idx;
-		wait_time += route.waiting_for_recourse + 3;
+		wait_time += route.waiting_for_recourse + SYNCHRONIZE_COEFF;
 	}
 }
 
 void RouteManager::InitRoute(int train_idx, const PostMap& posts)
 {
-	if (!primary) {
-		primary = true;
+	train_to_route[train_idx].position = 0;
+	if (primary) {
+		primary = false;
 		auto primary = std::dynamic_pointer_cast<Storage>(posts.at(storage_idx));
 		InitPrimaryRoutes(primary->armor_capacity, primary->replenishment);
 	}
 	else if (train_to_route[train_idx].level != MAX_TRAIN_LEVEL) {
 		auto& route = train_to_route[train_idx];
 		auto dest = std::dynamic_pointer_cast<Storage>(posts.at(storage_idx));
-		route.waiting_for_recourse = (route.train_capacity -dest->armor_capacity)
+		route.waiting_for_recourse = (route.train_capacity - dest->armor_capacity)
 			/ dest->replenishment;
 		route.route_nodes = storage_route;
 	}
 	else {
 		auto& route = train_to_route[train_idx];
 		route.route_nodes = market_route;
+		SynchronizeMarketRoutes(train_idx);
 	}
 }
 
@@ -189,4 +194,30 @@ std::pair<Graph, Graph> RouteManager::GenerateGraphs(const Game& game)
 		}
 	}
 	return { std::move(market_graph), std::move(storage_graph) };
+}
+
+void RouteManager::SynchronizeMarketRoutes(int train_idx)
+{
+	if (std::find(synchronized.begin(), synchronized.end(), train_idx) == synchronized.end()) {
+		if (!synchronized.empty()) {
+			int last_synchronized = synchronized.back();
+			int route_interval = market_route_length / train_to_route.size();
+
+			if (train_to_route[last_synchronized].waiting != 0) {
+				train_to_route[train_idx].waiting =
+					train_to_route[last_synchronized].waiting + route_interval;
+			}
+			else {
+				int route_interval = (market_route_length + train_to_route.size() - 1) /
+					train_to_route.size();
+				int last_position = train_to_route[last_synchronized].position;
+				int current_wait = last_position < route_interval + SYNCHRONIZE_COEFF ?
+					route_interval - last_position
+					: market_route_length - last_position + route_interval;
+				train_to_route[train_idx].waiting = current_wait;
+			}
+
+		}
+		synchronized.push_back(train_idx);
+	}
 }
