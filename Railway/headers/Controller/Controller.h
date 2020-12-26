@@ -37,5 +37,6 @@ private:
 	RouteManager route_manager;
 	ige::FileLogger logger;
 	std::mutex game_mutex;
+	const int UPGRADE_COEFF = 5;
 };
 

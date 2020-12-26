@@ -22,6 +22,7 @@ struct RouteInfo {
 	int waiting;
 	int waiting_for_recourse;
 	int train_capacity;
+	int level = 1;
 	Route route_nodes;
 	Position train_position;
 };
@@ -43,5 +44,6 @@ private:
 	Route market_route, storage_route;
 	std::unordered_map<int, RouteInfo> train_to_route;
 	std::unordered_map<int, std::unordered_map<int, int>> indices_to_distances;
-	bool primary = false, town_upgraded = false;
+	bool primary = false;
+	const int MAX_TRAIN_LEVEL = 3;
 };

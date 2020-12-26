@@ -66,6 +66,7 @@ std::vector<MoveRequest> RouteManager::MakeMoves(const Game& game)
 void RouteManager::UpgradeTrain(int train_idx, int new_capacity)
 {
 	train_to_route[train_idx].train_capacity = new_capacity;
+	++train_to_route[train_idx].level;
 }
 
 void RouteManager::CreateRoute(PostType type, Graph graph, const PostMap& posts)
@@ -137,8 +138,7 @@ void RouteManager::InitRoute(int train_idx, const PostMap& posts)
 		auto primary = std::dynamic_pointer_cast<Storage>(posts.at(storage_idx));
 		InitPrimaryRoutes(primary->armor_capacity, primary->replenishment);
 	}
-	else if (!town_upgraded) {
-		town_upgraded = true;
+	else if (train_to_route[train_idx].level != MAX_TRAIN_LEVEL) {
 		auto& route = train_to_route[train_idx];
 		auto dest = std::dynamic_pointer_cast<Storage>(posts.at(storage_idx));
 		route.waiting_for_recourse = (route.train_capacity -dest->armor_capacity)

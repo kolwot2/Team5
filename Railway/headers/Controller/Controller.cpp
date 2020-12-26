@@ -137,7 +137,7 @@ void Controller::CheckUpgrades()
 			route_manager.UpgradeTrain(train_idx, 80);
 		}
 	}
-	if (current_armor > game.GetPlayer().home_town.next_level_price) {
+	if (current_armor > game.GetPlayer().home_town.next_level_price + UPGRADE_COEFF) {
 		town_upgrade.push_back(game.GetPlayer().home.post_idx);
 		current_armor -= game.GetPlayer().home_town.next_level_price;
 	}
