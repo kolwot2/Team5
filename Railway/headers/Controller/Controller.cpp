@@ -10,8 +10,15 @@ Controller::Controller() :logger("logs.txt") {}
 
 void Controller::Init()
 {
-	connection.send(ActionMessage{ Login{} });
-	auto login_response = connection.recieve();
+	ResposeMessage login_response;
+	do {
+		connection.send(ActionMessage{ Login{} });
+		login_response = connection.recieve();
+		logger << ige::FileLogger::e_logType::LOG_INFO
+			<< "Trying to connect";
+	} while (login_response.result != Result::OKEY);
+	logger << ige::FileLogger::e_logType::LOG_INFO
+		<< "Connected";
 	auto& player = game.GetPlayer();
 	player = JsonParser::ParsePlayer(login_response.data);
 
@@ -43,6 +50,7 @@ void Controller::Disconnect()
 {
 	connection.send(ActionMessage(Action::LOGOUT, ""));
 	//auto msg = connection.recieve();
+	logger << ige::FileLogger::e_logType::LOG_INFO << "Disconnected";
 }
 
 const SynchronizedGame Controller::GetGame()
@@ -86,7 +94,7 @@ void Controller::UpdateGame()
 	}
 	auto& idx_to_post = game.GetPosts();
 	auto& trains = game.GetPlayer().trains;
-	auto[new_posts, new_trains, rating] = JsonParser::ParseMapLayer1(map_layer1_response.data);
+	auto [new_posts, new_trains, rating] = JsonParser::ParseMapLayer1(map_layer1_response.data);
 	{
 		auto guard = std::lock_guard{ game_mutex };
 		idx_to_post = move(new_posts);
@@ -182,7 +190,7 @@ bool Controller::IsTrainAtHome(int idx)
 void Controller::LogErrorRecieve(const ResposeMessage& response)
 {
 	std::stringstream ss;
-	ss  << "Error code: " << static_cast<int>(response.result) << '\n' 
+	ss << "Error code: " << static_cast<int>(response.result) << '\n'
 		<< "Error message: " << response.data;
 	logger << ige::FileLogger::e_logType::LOG_ERROR;
 	logger << ss.str();

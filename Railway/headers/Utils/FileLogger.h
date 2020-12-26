@@ -2,6 +2,8 @@
 #define FILELOGGER_HPP
 
 #include <fstream>
+#include <chrono>
+#include <ctime>
 
 namespace ige {
     class FileLogger {
@@ -13,7 +15,11 @@ namespace ige {
         {
             myFile.open(fname);
             if (myFile.is_open()) {
-                myFile << "Log file created" << std::endl << std::endl;
+                std::time_t current_time = std::chrono::system_clock::to_time_t(
+                    std::chrono::system_clock::now()
+                );
+                myFile << "Log file created" << std::endl
+                    << std::ctime(&current_time) << std::endl << std::endl;
             } 
         }
 
