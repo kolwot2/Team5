@@ -18,7 +18,6 @@ Railway::Railway(int winWidth, int winHeight)
 void Railway::start() {
 	Controller controller;
 	controller.Init();
-	bool game_over = false;
 	//PlaceGraph(graph, 500.f, 50.f, 0.1f, 500.f);
 
 	sf::RenderWindow window(sf::VideoMode(windowWidth, windowHeight), "Railway");
@@ -37,13 +36,13 @@ void Railway::start() {
 	MouseTracker mouse_tracker;
 
 	std::promise<void> stop;
-	auto turn_processing = [&controller, &game_over](std::future<void> stop) {
+	auto turn_processing = [&controller](std::future<void> stop) {
 		auto period = std::chrono::microseconds(0);
+		controller.WaitForGameStart();
 		while (stop.wait_for(period) != std::future_status::ready &&
-			!controller.IsGameOver()) {
+			controller.GetGameState() != GameState::FINISHED) {
 			controller.MakeTurn();
 		}
-		game_over = true;
 	};
 	std::thread(turn_processing, stop.get_future()).detach();
 
@@ -92,7 +91,7 @@ void Railway::start() {
 			auto sync_game = controller.GetGame();
 			const auto& game = sync_game.game;
 			drawer.PrintPostInfo(window, game.GetPostInfo(mouse_tracker.CheckMouseOnPost(drawer.GetPostSprites())));
-			drawer.PrintRating(window, game.GetPlayer().rating, game_over);
+			drawer.PrintRating(window, game.GetPlayer().rating, controller.GetGameState());
 		}
 
 		window.display();

@@ -122,12 +122,18 @@ void Drawer::PrintPostInfo(sf::RenderWindow &window, const std::string &post_inf
 	window.draw(post_label);
 }
 
-void Drawer::PrintRating(sf::RenderWindow &window, const int &rating, bool game_over) {
-	if (game_over) {
+void Drawer::PrintRating(sf::RenderWindow &window, const int &rating, GameState state) {
+	switch (state)
+	{
+	case GameState::INIT:
+		rating_label.setString("Waiting for game's start");
+		break;
+	case GameState::RUN:
+		rating_label.setString("Game is running. Rating: " + std::to_string(rating));
+		break;
+	case GameState::FINISHED:
 		rating_label.setString("GAME OVER. Rating: " + std::to_string(rating));
-	}
-	else {
-		rating_label.setString("rating: " + std::to_string(rating));
+		break;
 	}
 	rating_label.setPosition(sf::Vector2f((window.getSize().x - rating_label.getLocalBounds().width) / 2.0f, 0));
 	window.draw(rating_label);

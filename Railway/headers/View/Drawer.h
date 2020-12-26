@@ -19,6 +19,6 @@ public:
 	void DrawObjects(sf::RenderWindow &window);
 	void ScaleObjects(const float &scale_coeff);
 	void PrintPostInfo(sf::RenderWindow &window, const std::string &post_info);
-	void PrintRating(sf::RenderWindow &window, const int &rating, bool game_over);
+	void PrintRating(sf::RenderWindow &window, const int &rating, GameState state);
 	void UpdateTrainSpriteState(const Game &game);
 };

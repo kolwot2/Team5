@@ -24,6 +24,13 @@ enum class Result {
 	INTERNAL_SERVER_ERROR = 500
 };
 
+enum class GameState
+{
+	INIT = 1,
+	RUN = 2,
+	FINISHED = 3
+};
+
 struct ActionMessage {
 	Action actionCode;
 	std::string data;

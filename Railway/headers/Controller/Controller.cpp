@@ -10,15 +10,14 @@ Controller::Controller() :logger("logs.txt") {}
 
 void Controller::Init()
 {
-	ResposeMessage login_response;
-	do {
-		connection.send(ActionMessage{ Login{} });
-		login_response = connection.recieve();
-		logger << ige::FileLogger::e_logType::LOG_INFO
-			<< "Trying to connect";
-	} while (login_response.result != Result::OKEY);
-	logger << ige::FileLogger::e_logType::LOG_INFO
-		<< "Connected";
+	Login login;
+	connection.send(ActionMessage{ login });
+	auto login_response = connection.recieve();
+	logger << ige::FileLogger::e_logType::LOG_INFO << "Connected";
+
+	connection.send(ActionMessage{ Action::GAMES,"" });
+	auto recv = connection.recieve();
+
 	auto& player = game.GetPlayer();
 	player = JsonParser::ParsePlayer(login_response.data);
 
@@ -80,9 +79,16 @@ int Controller::GetTurnNumber() const
 	return turn_number;
 }
 
-bool Controller::IsGameOver() const
+GameState Controller::GetGameState() const
 {
-	return game_over;
+	return state;
+}
+
+void Controller::WaitForGameStart()
+{
+	while (state != GameState::RUN) {
+		UpdateGameState();
+	}
 }
 
 void Controller::UpdateGame()
@@ -104,6 +110,29 @@ void Controller::UpdateGame()
 		auto& player = game.GetPlayer();
 		player.home_town = *std::dynamic_pointer_cast<Town>(idx_to_post[player.home.idx]);
 		player.rating = rating;
+	}
+}
+
+void Controller::UpdateGameState()
+{
+	connection.send(ActionMessage{ Action::GAMES,"" });
+	auto recv = connection.recieve();
+	state = JsonParser::ParseGameState(recv.data, login.game.value());
+
+	switch (state)
+	{
+	case GameState::INIT:
+		logger << ige::FileLogger::e_logType::LOG_INFO
+			<< "Waiting for the game's start";
+		break;
+	case GameState::RUN:
+		logger << ige::FileLogger::e_logType::LOG_INFO
+			<< "Game started";
+		break;
+	case GameState::FINISHED:
+		logger << ige::FileLogger::e_logType::LOG_INFO
+			<< "Game finished";
+		break;
 	}
 }
 
@@ -161,9 +190,10 @@ void Controller::CheckUpgrades()
 void Controller::CheckResponse(const ResposeMessage& msg)
 {
 	if (msg.result == Result::INAPPROPRIATE_GAME_STATE) {
-		game_over = true;
+		UpdateGameState();
 	}
-	else {
+
+	if (state != GameState::FINISHED) {
 		LogErrorRecieve(msg);
 	}
 }

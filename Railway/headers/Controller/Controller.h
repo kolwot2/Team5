@@ -22,9 +22,11 @@ public:
 	const SynchronizedGame GetGame();
 	void MakeTurn();
 	int GetTurnNumber() const;
-	bool IsGameOver() const;
+	GameState GetGameState() const;
+	void WaitForGameStart();
 private:
 	void UpdateGame();
+	void UpdateGameState();
 	void SendMoveRequests(const std::vector<MoveRequest>&);
 	void SendUpgradeRequest(std::vector<int>, std::vector<int>);
 	void EndTurn();
@@ -40,6 +42,7 @@ private:
 	ige::FileLogger logger;
 	std::mutex game_mutex;
 	const int UPGRADE_COEFF = 5;
-	bool game_over = false;
+	Login login;
+	GameState state = GameState::INIT;
 };
 
