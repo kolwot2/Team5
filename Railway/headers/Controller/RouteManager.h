@@ -6,6 +6,7 @@
 #include <deque>
 #include <set>
 #include <variant>
+#include <list>
 
 struct RouteNode {
 	int from;
@@ -24,6 +25,7 @@ struct RouteInfo {
 	int train_capacity;
 	int level = 1;
 	int position = 0;
+	bool repeating = false;
 	Route route_nodes;
 	Position train_position;
 };
@@ -37,13 +39,13 @@ public:
 private:
 	void CreateRoute(PostType, Graph, const PostMap&);
 	int CalculateDestination(PostType, const PostMap&);
-	void InitPrimaryRoutes(int, int);
 	void InitRoute(int, const PostMap&);
 	std::pair<Graph, Graph> GenerateGraphs(const Game&);
 	void SynchronizeMarketRoutes(int);
+	void SynchronizeStorageRoute(int);
 
 	int home_idx, market_idx, storage_idx, market_route_length, storage_route_length;
-	std::deque<int> synchronized;
+	std::list<int> synchronized_market_routes, synchronized_storage_routes;
 	Route market_route, storage_route;
 	std::unordered_map<int, RouteInfo> train_to_route;
 	std::unordered_map<int, std::unordered_map<int, int>> indices_to_distances;
