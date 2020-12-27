@@ -1,7 +1,6 @@
 #pragma once
 #include <string>
 #include <vector>
-#include "Event.h"
 
 enum class PostType {
 	TOWN = 1,
@@ -12,7 +11,6 @@ enum class PostType {
 
 struct Post {
 	PostType type;
-	std::vector<Event> events;
 	std::string name;
 	int idx, point_idx;
 	virtual int GetRecourse() const { return 0; }

@@ -25,7 +25,7 @@ struct RouteInfo {
 	int train_capacity;
 	int level = 1;
 	int position = 0;
-	bool repeating = false;
+	int cooldown = 0;;
 	Route route_nodes;
 	Position train_position;
 };
@@ -36,6 +36,7 @@ public:
 	void Init(const Game&);
 	std::vector<MoveRequest> MakeMoves(const Game&);
 	void UpgradeTrain(int, int);
+	void TrainCrashed(int,int);
 private:
 	void CreateRoute(PostType, Graph, const PostMap&);
 	int CalculateDestination(PostType, const PostMap&);
@@ -51,5 +52,5 @@ private:
 	std::unordered_map<int, std::unordered_map<int, int>> indices_to_distances;
 	bool primary = true;
 	const int MAX_TRAIN_LEVEL = 3;
-	const int SYNCHRONIZE_COEFF = 2;
+	const int SYNCHRONIZE_COEFF = 1;
 };

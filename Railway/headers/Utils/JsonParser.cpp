@@ -42,8 +42,6 @@ Player JsonParser::ParsePlayer(std::string& input) {
 	Home home = { home_item["idx"].GetInt(), home_item["post_idx"].GetInt() };
 
 	string idx = doc["idx"].GetString();
-	bool in_game = doc["in_game"].GetBool();
-	string name = doc["name"].GetString();
 	int rating = doc["rating"].GetInt();
 
 	const auto& trains_item = doc["trains"].GetArray();
@@ -51,7 +49,7 @@ Player JsonParser::ParsePlayer(std::string& input) {
 
 	const auto& town_item = doc["town"].GetObject();
 	auto town_ptr = ParseTown(town_item);
-	return Player{ home, move(idx), in_game, move(name), rating, move(*town_ptr), move(trains) };
+	return Player{ home, move(idx), rating, move(*town_ptr), move(trains) };
 }
 
 MapLayer1Response JsonParser::ParseMapLayer1(std::string& input) {
@@ -96,7 +94,6 @@ std::vector<std::pair<int, Point>> JsonParser::ParseCoordinates(std::string& inp
 		res.push_back({ item["idx"].GetInt(),
 			{static_cast<float>(item["x"].GetInt()), static_cast<float>(item["y"].GetInt())} });
 	}
-	//to do: parse idx and size
 	return res;
 }
 
@@ -128,6 +125,8 @@ std::unordered_map<int, Train> JsonParser::ParseTrains(const rapidjson::GenericA
 		else {
 			train.next_level_price = std::nullopt;
 		}
+		const auto& events_array = item["events"].GetArray();
+		train.crashed = events_array.Size() != 0 ? true : false;
 		trains[train.idx] = train;
 	}
 	return trains;

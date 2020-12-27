@@ -13,8 +13,6 @@ struct Player
 {
 	Home home;
 	std::string idx;
-	bool in_game;
-	std::string name;
 	int rating;
 	Town home_town;
 	std::unordered_map<int, Train> trains;

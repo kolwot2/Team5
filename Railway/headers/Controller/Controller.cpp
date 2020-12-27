@@ -61,6 +61,7 @@ void Controller::MakeTurn()
 {
 	auto start = std::chrono::steady_clock::now();
 	UpdateGame();
+	CheckTrainCrashed();
 	CheckUpgrades();
 	auto moves = route_manager.MakeMoves(game);
 	SendMoveRequests(moves);
@@ -133,6 +134,15 @@ void Controller::UpdateGameState()
 		logger << ige::FileLogger::e_logType::LOG_INFO
 			<< "Game finished";
 		break;
+	}
+}
+
+void Controller::CheckTrainCrashed()
+{
+	for (const auto& [idx, train] : game.GetPlayer().trains) {
+		if (train.crashed) {
+			route_manager.TrainCrashed(idx, train.cooldown);
+		}
 	}
 }
 

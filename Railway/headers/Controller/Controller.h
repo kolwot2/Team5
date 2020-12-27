@@ -27,6 +27,7 @@ public:
 private:
 	void UpdateGame();
 	void UpdateGameState();
+	void CheckTrainCrashed();
 	void SendMoveRequests(const std::vector<MoveRequest>&);
 	void SendUpgradeRequest(std::vector<int>, std::vector<int>);
 	void EndTurn();
