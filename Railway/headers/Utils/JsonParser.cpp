@@ -139,7 +139,12 @@ std::shared_ptr<Town> JsonParser::ParseTown(const rapidjson::Value& town_item) {
 	town->idx = town_item["idx"].GetInt();
 	town->level = town_item["level"].GetInt();
 	town->name = town_item["name"].GetString();
-	town->next_level_price = town_item["next_level_price"].GetInt();
+	if (town_item["next_level_price"].IsInt()) {
+		town->next_level_price = town_item["next_level_price"].GetInt();
+	}
+	else {
+		town->next_level_price = std::nullopt;
+	}
 	if (town_item["player_idx"].IsString()) {
 		town->player_idx = town_item["player_idx"].GetString();
 	}

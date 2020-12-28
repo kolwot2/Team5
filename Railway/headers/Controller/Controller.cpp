@@ -142,6 +142,9 @@ void Controller::CheckTrainCrashed()
 	for (const auto& [idx, train] : game.GetPlayer().trains) {
 		if (train.crashed) {
 			route_manager.TrainCrashed(idx, train.cooldown);
+			std::stringstream ss;
+			ss << "Train " << idx << " crashed";
+			logger << ige::FileLogger::e_logType::LOG_INFO << ss.str();
 		}
 	}
 }
@@ -186,15 +189,19 @@ void Controller::CheckUpgrades()
 			IsTrainAtHome(train_idx)) {
 			train_upgrades.push_back(train_idx);
 			current_armor -= train.next_level_price.value();
-			route_manager.UpgradeTrain(train_idx, 80);
+			route_manager.UpgradeTrain(train_idx, train.goods_capacity * 2);
 		}
 	}
-	if (current_armor > game.GetPlayer().home_town.next_level_price + UPGRADE_COEFF) {
+	if (game.GetPlayer().home_town.next_level_price.has_value() &&
+		current_armor > game.GetPlayer().home_town.next_level_price.value() + UPGRADE_COEFF) {
 		town_upgrade.push_back(game.GetPlayer().home.post_idx);
-		current_armor -= game.GetPlayer().home_town.next_level_price;
+		current_armor -= game.GetPlayer().home_town.next_level_price.value();
+		route_manager.UpgradeHome();
 	}
 
-	SendUpgradeRequest(town_upgrade, train_upgrades);
+	if (town_upgrade.size() + train_upgrades.size() != 0) {
+		SendUpgradeRequest(town_upgrade, train_upgrades);
+	}
 }
 
 void Controller::CheckResponse(const ResposeMessage& msg)

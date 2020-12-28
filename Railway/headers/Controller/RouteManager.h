@@ -3,6 +3,7 @@
 #include "../Game/Train.h"
 #include "../Game/Player.h"
 #include "../Game/Game.h"
+#include "MaxLevels.h"
 #include <deque>
 #include <set>
 #include <variant>
@@ -37,6 +38,7 @@ public:
 	std::vector<MoveRequest> MakeMoves(const Game&);
 	void UpgradeTrain(int, int);
 	void TrainCrashed(int,int);
+	void UpgradeHome();
 private:
 	void CreateRoute(PostType, Graph, const PostMap&);
 	int CalculateDestination(PostType, const PostMap&);
@@ -44,13 +46,15 @@ private:
 	std::pair<Graph, Graph> GenerateGraphs(const Game&);
 	void SynchronizeMarketRoutes(int);
 	void SynchronizeStorageRoute(int);
+	void InitPrimaryRoutes(const PostMap&);
 
 	int home_idx, market_idx, storage_idx, market_route_length, storage_route_length;
+	std::optional<int> home_upgrader;
 	std::list<int> synchronized_market_routes, synchronized_storage_routes;
 	Route market_route, storage_route;
 	std::unordered_map<int, RouteInfo> train_to_route;
 	std::unordered_map<int, std::unordered_map<int, int>> indices_to_distances;
 	bool primary = true;
-	const int MAX_TRAIN_LEVEL = 3;
-	const int SYNCHRONIZE_COEFF = 1;
+	const int SYNCHRONIZE_COEFF = 2;
+	int home_level = 1;
 };

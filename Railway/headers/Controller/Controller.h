@@ -3,6 +3,7 @@
 #include "../ServerConnection/ServerConnection.h"
 #include "../ServerConnection/Messages.h"
 #include "../Utils/FileLogger.h"
+#include "MaxLevels.h"
 #include "RouteManager.h"
 #include <queue>
 #include <set>

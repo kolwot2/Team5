@@ -10,8 +10,8 @@ string JsonWriter::WriteLogin(const Login& login) {
 	auto& alloc = document.GetAllocator();
 
 	document.AddMember("name", Value(login.name.c_str(), login.name.size(), alloc), alloc);
-	if (login.parrword.has_value()) {
-		document.AddMember("password", Value(login.parrword.value().c_str(), alloc), alloc);
+	if (login.password.has_value()) {
+		document.AddMember("password", Value(login.password.value().c_str(), alloc), alloc);
 	}
 	if (login.game.has_value()) {
 		document.AddMember("game", Value(login.game.value().c_str(), alloc), alloc);

@@ -83,6 +83,9 @@ void RouteManager::TrainCrashed(int train_idx, int cooldown)
 		train_to_route[train_idx].route_nodes.clear();
 		train_to_route[train_idx].waiting = 0;
 		train_to_route[train_idx].waiting_for_recourse = 0;
+		if (home_upgrader.has_value() && home_upgrader.value() == train_idx) {
+			home_upgrader = std::nullopt;
+		}
 		if (auto it = std::find(synchronized_market_routes.begin(), synchronized_market_routes.end(), train_idx);
 			it != synchronized_market_routes.end()) {
 			synchronized_market_routes.erase(it, synchronized_market_routes.end());
@@ -92,6 +95,11 @@ void RouteManager::TrainCrashed(int train_idx, int cooldown)
 			synchronized_storage_routes.erase(it);
 		}
 	}
+}
+
+void RouteManager::UpgradeHome()
+{
+	++home_level;
 }
 
 void RouteManager::CreateRoute(PostType type, Graph graph, const PostMap& posts)
@@ -153,21 +161,25 @@ void RouteManager::InitRoute(int train_idx, const PostMap& posts)
 
 	auto& route_info = train_to_route[train_idx];
 	train_to_route[train_idx].position = 0;
-	if (route_info.level == MAX_TRAIN_LEVEL) {
+	if (primary) {
+		InitPrimaryRoutes(posts);
+		primary = false;
+	} else if (synchronized_market_routes.size() != 0 &&
+		(!home_upgrader.has_value() || home_upgrader.value() == train_idx) && 
+		home_level != MaxLevels::MAX_TOWN_LEVEL) {
+		home_upgrader = train_idx;
 		route_info.route_nodes = storage_route;
 		route_info.destination = storage_idx;
 		auto dest = std::dynamic_pointer_cast<Storage>(posts.at(storage_idx));
 		int current_capacity = synchronized_storage_routes.size() == 0 ?
 			route_info.train_capacity - dest->armor_capacity : route_info.train_capacity;
 		route_info.waiting_for_recourse = (current_capacity + dest->replenishment - 1) /
-			dest->replenishment;
+			dest->replenishment + SYNCHRONIZE_COEFF;
 		SynchronizeStorageRoute(train_idx);
 	}
 	else {
-		auto it = std::find(synchronized_storage_routes.begin(),
-			synchronized_storage_routes.end(), train_idx);
-		if (it != synchronized_storage_routes.end()) {
-			synchronized_storage_routes.erase(it);
+		if (home_upgrader.has_value() && home_upgrader.value() == train_idx) {
+			home_upgrader = std::nullopt;
 		}
 		route_info.route_nodes = market_route;
 		SynchronizeMarketRoutes(train_idx);
@@ -260,5 +272,19 @@ void RouteManager::SynchronizeStorageRoute(int train_idx)
 
 		}
 		synchronized_storage_routes.push_back(train_idx);
+	}
+}
+
+void RouteManager::InitPrimaryRoutes(const PostMap& posts)
+{
+	for (auto& [train_idx, route_info] : train_to_route) {
+		route_info.route_nodes = storage_route;
+		route_info.destination = storage_idx;
+		auto dest = std::dynamic_pointer_cast<Storage>(posts.at(storage_idx));
+		int current_capacity = synchronized_storage_routes.size() == 0 ?
+			route_info.train_capacity - dest->armor_capacity : route_info.train_capacity;
+		route_info.waiting_for_recourse = (current_capacity + dest->replenishment - 1) /
+			dest->replenishment;
+		SynchronizeStorageRoute(train_idx);
 	}
 }

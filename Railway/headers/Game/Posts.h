@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <optional>
 
 enum class PostType {
 	TOWN = 1,
@@ -18,8 +19,9 @@ struct Post {
 };
 
 struct Town : public Post {
-	int armor, armor_capacity, level, next_level_price,
+	int armor, armor_capacity, level,
 		population, population_capacity, product, product_capacity, train_cooldown;
+	std::optional<int> next_level_price;
 	std::string player_idx;
 };
 
